@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from "react";
+import { motion } from "framer-motion";
 import HeroScene from "@/components/community/HeroScene";
 import UIOverlay from "@/components/community/UIOverlay";
 import StatsSection from "@/components/community/StatsSection";
@@ -84,44 +85,57 @@ export default function CommunityPage() {
             background: separatorGradient,
             transition: "background 0.6s ease",
           }} />
+          <motion.div
+            animate={{ x: ["-100%", "100%"] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
+            style={{
+              position: "absolute", top: 0, left: 0, width: "25%", height: "100%",
+              background: separatorGlow,
+              filter: "blur(1px)",
+              transition: "background 0.6s ease",
+            }}
+          />
         </div>
 
         <main>
           <StatsSection />
+
+          <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 24px" }}>
+            <div style={{ height: "1px", background: dividerLine, transition: "background 0.6s ease" }} />
+          </div>
+
           <FeatureCards />
+
+          <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 24px" }}>
+            <div style={{ height: "1px", background: dividerLine, transition: "background 0.6s ease" }} />
+          </div>
+
           <PostsSection />
         </main>
 
         {/* Footer */}
         <footer style={{
-          padding: "64px 24px 40px",
-          position: "relative", zIndex: 2,
           borderTop: footerBorder,
-          marginTop: "80px",
+          padding: "52px 24px",
+          textAlign: "center",
+          position: "relative",
+          overflow: "hidden",
           transition: "border-color 0.6s ease",
         }}>
           <div style={{
-            position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-            width: "90%", height: "1px",
-            background: dividerLine, transition: "background 0.6s ease",
+            position: "absolute", top: "-40px", left: "50%", transform: "translateX(-50%)",
+            width: "400px", height: "180px",
+            background: footerGlow,
+            filter: "blur(40px)", pointerEvents: "none",
+            transition: "background 0.6s ease",
           }} />
-          <div style={{
-            position: "absolute", top: "-1px", left: "50%", transform: "translateX(-50%)",
-            width: "60%", height: "80px",
-            background: footerGlow, transition: "background 0.6s ease", pointerEvents: "none",
-          }} />
-
-          <div style={{ maxWidth: "1200px", margin: "0 auto", textAlign: "center" }}>
-            <div style={{
-              display: "flex", alignItems: "center", justifyContent: "center", gap: "12px",
-              marginBottom: "20px",
-            }}>
+          <div style={{ position: "relative" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "18px" }}>
               <div style={{
-                width: "40px", height: "40px",
-                borderRadius: "50%",
+                width: "28px", height: "28px", borderRadius: "8px",
                 background: logoBg,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "20px", boxShadow: logoShadow,
+                fontSize: "14px", boxShadow: logoShadow,
                 transition: "all 0.6s ease",
               }}>📈</div>
               <span style={{
