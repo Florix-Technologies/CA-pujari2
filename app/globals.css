@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Apply dark variant when .dark class is active (for next-themes) */
+@variant dark (&:where(.dark, .dark *));
+
 /* ========================================
    GLOBAL DESIGN SYSTEM - FINANCE THEME
    ======================================== */
@@ -62,6 +65,37 @@
   --transition-fast: 0.2s ease;
   --transition-medium: 0.35s ease;
   --transition-slow: 0.6s ease;
+}
+
+.dark {
+  /* Backgrounds: Very deep black / near-black */
+  --color-bg-primary: #050505;
+  --color-bg-secondary: #0f0f0f;
+  --color-bg-accent: #111111;
+
+  --gradient-hero: linear-gradient(
+    135deg,
+    #050505 0%,
+    #0a0a0a 50%,
+    #0f0f0f 100%
+  );
+
+  /* Text: White / Gray-300 */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #d1d5db; /* gray-300 */
+  --color-text-light: #9ca3af;     /* gray-400 */
+
+  /* Accent: Neon Blue / Subtle Purple */
+  --color-accent-gold: #3b82f6;      /* text-blue-500 */
+  --color-accent-soft-gold: #8b5cf6; /* text-purple-500 */
+
+  /* UI: Gray-800 borders */
+  --color-border-light: #27272a;
+  --color-divider: #3f3f46;
+
+  /* Shadows: Slight glow */
+  --shadow-soft: 0px 4px 20px rgba(59, 130, 246, 0.05);
+  --shadow-medium: 0px 10px 40px rgba(139, 92, 246, 0.08);
 }
 
 /* ========================================

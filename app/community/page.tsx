@@ -12,7 +12,9 @@ export default function CommunityPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-4">Trading Community</h1>
           <p className="text-xl text-primary-foreground/90 max-w-2xl mx-auto">
-            Learn, share, and grow with thousands of traders. Ask questions and share your experiences.
+            Learn, share, and grow
+            THIS PAGE IS UNDER CONSTRUCTION AND NEED TO BE INTEGRATED WTH SHREYA CHANGES
+            with thousands of traders. Ask questions and share your experiences.
           </p>
         </div>
       </section>
