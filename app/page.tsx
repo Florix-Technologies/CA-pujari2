@@ -9,7 +9,7 @@ import { motion, useScroll, useTransform, useMotionValueEvent, useSpring } from 
 import { fadeUp, stagger } from "@/lib/animations"
 import { BentoGallery } from "@/components/blocks/bento-gallery"
 
-const FRAME_COUNT = 200
+const FRAME_COUNT = 100
 
 export default function Home() {
   const words = ["Learn", "Practice", "Trade"]
@@ -50,7 +50,7 @@ export default function Home() {
       for (let i = 1; i <= FRAME_COUNT; i++) {
         const img = new Image()
         const paddedIndex = i.toString().padStart(3, '0')
-        img.src = `/framer-super1/ezgif-frame-${paddedIndex}.jpg`
+        img.src = `/frame/ezgif-frame-${paddedIndex}.png`
         
         img.onload = () => {
           // Tell browser to decode it off main thread immediately
@@ -95,9 +95,8 @@ export default function Home() {
       <Navigation />
 
       {/* HERO — SEQUENCE ANIMATION */}
-      <section ref={heroRef} className="relative h-[400vh] bg-[#F7F2E8]">
+      <section ref={heroRef} className="relative h-[300vh] bg-[#F7F2E8]">
         <div className="sticky top-0 h-[100vh] overflow-hidden flex items-center justify-center">
-          
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full object-cover"
