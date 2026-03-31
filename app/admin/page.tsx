@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { useTheme } from '@/hooks/useTheme'
 import { Navigation } from '@/components/navigation'
 import { Footer } from '@/components/footer'
 import { Button } from '@/components/ui/button'
@@ -55,6 +56,7 @@ type Webinar = {
 
 export default function AdminPage() {
   const { user, loading: authLoading } = useAuth()
+  const { isLight } = useTheme()
   const router = useRouter()
 
   const [courses, setCourses] = useState<Course[]>([])
@@ -286,23 +288,52 @@ export default function AdminPage() {
     <>
       <Navigation />
 
-      <div className="min-h-screen bg-background py-16">
+      <div 
+        className="min-h-screen py-16"
+        style={{
+          backgroundColor: isLight ? '#F7F2E8' : '#0F172A',
+        }}
+      >
         <motion.div variants={stagger} initial="hidden" animate="visible" className="max-w-7xl mx-auto px-6">
-          <motion.h1 variants={fadeUp} className="text-4xl font-bold mb-2">
+          <motion.h1 
+            variants={fadeUp} 
+            className="text-4xl font-bold mb-2"
+            style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}
+          >
             Admin Dashboard
           </motion.h1>
-          <motion.p variants={fadeUp} className="text-muted-foreground mb-8">
+          <motion.p 
+            variants={fadeUp} 
+            style={{ color: isLight ? '#A38970' : '#CBD5E1' }}
+            className="mb-8"
+          >
             Manage courses and webinars
           </motion.p>
 
           {message && (
-            <motion.div variants={fadeUp} className="mb-6 p-4 bg-muted rounded-lg">
+            <motion.div 
+              variants={fadeUp} 
+              className="mb-6 p-4 rounded-lg"
+              style={{
+                backgroundColor: isLight ? '#F7F2E8' : '#0F172A',
+                borderColor: isLight ? '#E0D5C7' : '#334155',
+                color: isLight ? '#3E3730' : '#E0E7FF',
+              }}
+            >
               {message}
             </motion.div>
           )}
 
           {error && (
-            <motion.div variants={fadeUp} className="mb-6 p-4 bg-red-500/10 border border-red-500 rounded-lg text-red-600">
+            <motion.div 
+              variants={fadeUp} 
+              className="mb-6 p-4 border rounded-lg"
+              style={{
+                backgroundColor: isLight ? '#FEE2E2' : '#7F1D1D',
+                borderColor: isLight ? '#FCA5A5' : '#DC2626',
+                color: isLight ? '#991B1B' : '#FECACA',
+              }}
+            >
               <p className="font-semibold">Error:</p>
               <p>{error}</p>
               <Button onClick={loadData} variant="outline" size="sm" className="mt-2">
@@ -321,10 +352,19 @@ export default function AdminPage() {
             <TabsContent value="courses" className="space-y-8 min-h-screen">
               {/* Course Form */}
               <motion.div variants={fadeUp} initial="hidden" animate="visible">
-                <Card>
+                <Card
+                  style={{
+                    backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
+                    borderColor: isLight ? '#E0D5C7' : '#334155',
+                  }}
+                >
                   <CardHeader>
-                    <CardTitle>{editingCourse ? 'Edit Course' : 'Create New Course'}</CardTitle>
-                    <CardDescription>Fill in the course details below</CardDescription>
+                    <CardTitle style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>
+                      {editingCourse ? 'Edit Course' : 'Create New Course'}
+                    </CardTitle>
+                    <CardDescription style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>
+                      Fill in the course details below
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleCreateCourse} className="space-y-4">
@@ -425,17 +465,23 @@ export default function AdminPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {displayCourses.length === 0 ? (
-                    <p className="text-muted-foreground">No courses yet</p>
+                    <p style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>No courses yet</p>
                   ) : (
                     displayCourses.map((course) => (
-                      <Card key={course.id}>
+                      <Card 
+                        key={course.id}
+                        style={{
+                          backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
+                          borderColor: isLight ? '#E0D5C7' : '#334155',
+                        }}
+                      >
                         <CardHeader>
-                          <CardTitle className="text-lg">{course.title}</CardTitle>
-                          <CardDescription>{course.level}</CardDescription>
+                          <CardTitle className="text-lg" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>{course.title}</CardTitle>
+                          <CardDescription style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>{course.level}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-2">
-                          <p className="text-sm text-muted-foreground line-clamp-2">{course.description}</p>
-                          <div className="text-xs text-muted-foreground space-y-1">
+                          <p style={{ color: isLight ? '#A38970' : '#CBD5E1' }} className="text-sm line-clamp-2">{course.description}</p>
+                          <div style={{ color: isLight ? '#A38970' : '#CBD5E1' }} className="text-xs space-y-1">
                             <p>{course.duration}</p>
                             <p>{course.modules} modules</p>
                             <p className="font-semibold">{course.price}</p>
@@ -467,10 +513,19 @@ export default function AdminPage() {
             <TabsContent value="webinars" className="space-y-8 min-h-screen">
               {/* Webinar Form */}
               <motion.div variants={fadeUp} initial="hidden" animate="visible">
-                <Card>
+                <Card
+                  style={{
+                    backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
+                    borderColor: isLight ? '#E0D5C7' : '#334155',
+                  }}
+                >
                   <CardHeader>
-                    <CardTitle>{editingWebinar ? 'Edit Webinar' : 'Create New Webinar'}</CardTitle>
-                    <CardDescription>Fill in the webinar details below</CardDescription>
+                    <CardTitle style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>
+                      {editingWebinar ? 'Edit Webinar' : 'Create New Webinar'}
+                    </CardTitle>
+                    <CardDescription style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>
+                      Fill in the webinar details below
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleCreateWebinar} className="space-y-4">
@@ -582,19 +637,25 @@ export default function AdminPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {displayWebinars.length === 0 ? (
-                    <p className="text-muted-foreground">No webinars yet</p>
+                    <p style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>No webinars yet</p>
                   ) : (
                     displayWebinars.map((webinar) => {
                       try {
                         return (
-                          <Card key={webinar.id}>
+                          <Card 
+                            key={webinar.id}
+                            style={{
+                              backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
+                              borderColor: isLight ? '#E0D5C7' : '#334155',
+                            }}
+                          >
                             <CardHeader>
-                              <CardTitle className="text-lg">{webinar.title}</CardTitle>
-                              <CardDescription>{webinar.platform}</CardDescription>
+                              <CardTitle className="text-lg" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>{webinar.title}</CardTitle>
+                              <CardDescription style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>{webinar.platform}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-2">
-                              <p className="text-sm text-muted-foreground line-clamp-2">{webinar.description}</p>
-                              <div className="text-xs text-muted-foreground space-y-1">
+                              <p style={{ color: isLight ? '#A38970' : '#CBD5E1' }} className="text-sm line-clamp-2">{webinar.description}</p>
+                              <div style={{ color: isLight ? '#A38970' : '#CBD5E1' }} className="text-xs space-y-1">
                                 <p>{safeFormatDate(webinar.starts_at)}</p>
                                 <p>{webinar.duration_minutes || 60} minutes</p>
                                 <p className="font-semibold">{webinar.price || 'N/A'}</p>
@@ -621,12 +682,18 @@ export default function AdminPage() {
                       } catch (err) {
                         console.error('Error rendering webinar:', webinar, err)
                         return (
-                          <Card key={webinar.id}>
+                          <Card 
+                            key={webinar.id}
+                            style={{
+                              backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
+                              borderColor: isLight ? '#E0D5C7' : '#334155',
+                            }}
+                          >
                             <CardHeader>
-                              <CardTitle className="text-lg">{webinar.title}</CardTitle>
+                              <CardTitle className="text-lg" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>{webinar.title}</CardTitle>
                             </CardHeader>
                             <CardContent>
-                              <p className="text-xs text-red-600">Error rendering webinar</p>
+                              <p style={{ color: '#EF4444' }} className="text-xs">Error rendering webinar</p>
                             </CardContent>
                           </Card>
                         )

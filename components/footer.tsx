@@ -1,9 +1,17 @@
 import Link from "next/link"
 import { Linkedin, Youtube, Mail } from "lucide-react"
+import { useTheme } from "@/hooks/useTheme"
 
 export function Footer() {
+  const { isLight } = useTheme()
   return (
-    <footer className="bg-[#E2D6C2] text-[#3E3730] py-12">
+    <footer 
+      style={{
+        backgroundColor: isLight ? '#E2D6C2' : '#1A2F4A',
+        color: isLight ? '#3E3730' : '#E0E7FF'
+      }}
+      className="py-12"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
@@ -75,7 +83,12 @@ export function Footer() {
             </div>
           </div>
         </div>
-        <div className="border-t border-[#3E3730]/20 pt-8 text-center text-sm">
+        <div 
+          className="border-t pt-8 text-center text-sm"
+          style={{
+            borderColor: isLight ? '#3E3730/20' : '#4FD1FF/20'
+          }}
+        >
           <p>&copy; 2026 Shobha Pujari. All rights reserved.</p>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
+import { useTheme } from "@/hooks/useTheme"
 import Link from "next/link"
 import { Clock, Users, Book } from "lucide-react"
 import { motion, useScroll, useTransform } from "framer-motion"
@@ -26,6 +27,7 @@ type Course = {
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
+  const { isLight } = useTheme()
   
   // For Parallax Effect
   const heroRef = useRef<HTMLElement>(null)
@@ -129,19 +131,19 @@ export default function CoursesPage() {
   return (
     <main
       style={{
-        '--fin-bg-primary': '#F7F2E8',
-        '--fin-bg-secondary': '#EBE5D8',
-        '--fin-bg-accent': '#DFD8CC',
-        '--fin-gradient-hero': 'linear-gradient(90deg, #FBF8F2 0%, #F7F2E8 50%, #F5F0E6 100%)',
-        '--fin-text-primary': '#3E3730',
-        '--fin-text-secondary': '#645E56',
-        '--fin-text-light': '#8A847C',
-        '--fin-accent-gold': '#D1AF62',
-        '--fin-accent-soft-gold': '#A38970',
-        '--fin-border-light': '#A38970',
-        '--fin-border-divider': '#D6CCBE'
+        '--fin-bg-primary': isLight ? '#F7F2E8' : '#0F172A',
+        '--fin-bg-secondary': isLight ? '#EBE5D8' : '#1A2847',
+        '--fin-bg-accent': isLight ? '#DFD8CC' : '#243456',
+        '--fin-gradient-hero': isLight ? 'linear-gradient(90deg, #FBF8F2 0%, #F7F2E8 50%, #F5F0E6 100%)' : 'linear-gradient(90deg, #0F172A 0%, #1A2847 50%, #243456 100%)',
+        '--fin-text-primary': isLight ? '#3E3730' : '#E0E7FF',
+        '--fin-text-secondary': isLight ? '#645E56' : '#C7D2FE',
+        '--fin-text-light': isLight ? '#8A847C' : '#A5B4FC',
+        '--fin-accent-gold': isLight ? '#D1AF62' : '#4FD1FF',
+        '--fin-accent-soft-gold': isLight ? '#A38970' : '#3B82F6',
+        '--fin-border-light': isLight ? '#A38970' : '#4FD1FF',
+        '--fin-border-divider': isLight ? '#D6CCBE' : '#334155'
       } as React.CSSProperties}
-      className="bg-white min-h-screen text-[var(--fin-text-primary)] transition-colors duration-500 font-sans"
+      className={`${isLight ? 'bg-white text-[var(--fin-text-primary)]' : 'bg-[#0F172A] text-[#E0E7FF]'} min-h-screen transition-colors duration-500 font-sans`}
     >
       <Navigation />
 
@@ -183,7 +185,10 @@ export default function CoursesPage() {
       </section>
 
       {/* COURSES GRID */}
-      <section className="py-24 bg-white relative">
+      <section 
+        className="py-24 relative"
+        style={{ backgroundColor: isLight ? '#FFFFFF' : '#0F172A' }}
+      >
         <motion.div
           variants={premiumStagger}
           initial="hidden"
@@ -230,7 +235,13 @@ export default function CoursesPage() {
       </section>
 
       {/* CTA — PREMIUM FINANCE */}
-      <section className="py-32 bg-white relative overflow-hidden border-t border-[var(--fin-border-light)]">
+      <section 
+        className="py-32 relative overflow-hidden"
+        style={{ 
+          backgroundColor: isLight ? '#FFFFFF' : '#0F172A',
+          borderTop: `1px solid ${isLight ? '#A38970' : '#4FD1FF'}`
+        }}
+      >
         {/* Decorative elements */}
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--fin-accent-gold)]/40 to-transparent" />
         
@@ -257,8 +268,17 @@ export default function CoursesPage() {
           <motion.div variants={premiumFadeUp}>
             <Link
               href="/webinars"
-              className="group/cta inline-flex items-center justify-center px-10 py-5 bg-[var(--fin-text-primary)] text-white
-              rounded-xl font-bold text-lg transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[#2A2420] hover:shadow-[0_20px_40px_-10px_rgba(209,175,98,0.3)] hover:-translate-y-1.5 border border-transparent hover:border-[var(--fin-accent-gold)]/50 relative overflow-hidden"
+              style={{
+                backgroundColor: isLight ? '#3E3730' : '#4FD1FF',
+                color: '#FFFFFF'
+              }}
+              className="group/cta inline-flex items-center justify-center px-10 py-5 rounded-xl font-bold text-lg transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:shadow-[0_20px_40px_-10px_rgba(79,209,255,0.3)] hover:-translate-y-1.5 border border-transparent relative overflow-hidden"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = isLight ? '#2A2420' : '#2FA5D8'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = isLight ? '#3E3730' : '#4FD1FF'
+              }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/cta:translate-x-full transition-transform duration-1000 ease-in-out" />
               <span className="relative z-10">Join an Introductory Webinar</span>

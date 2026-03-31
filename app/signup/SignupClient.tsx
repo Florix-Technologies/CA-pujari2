@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import supabase from "@/lib/supabaseClient"
+import { useTheme } from "@/hooks/useTheme"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,6 +21,7 @@ import { motion } from "framer-motion"
 
 export default function SignupClient() {
   const router = useRouter()
+  const { isLight } = useTheme()
   const searchParams = useSearchParams()
   const course = searchParams?.get("course")
   const redirectParam = searchParams?.get("redirect")
@@ -85,8 +87,10 @@ export default function SignupClient() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4
-      bg-gradient-to-br from-background via-muted to-background"
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{
+        backgroundColor: isLight ? '#F7F2E8' : '#0F172A',
+      }}
     >
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.98 }}
@@ -94,15 +98,24 @@ export default function SignupClient() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="w-full max-w-md"
       >
-        <Card className="relative overflow-hidden rounded-3xl shadow-2xl">
+        <Card 
+          className="relative overflow-hidden rounded-3xl shadow-2xl"
+          style={{
+            backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
+            borderColor: isLight ? '#E0D5C7' : '#334155',
+          }}
+        >
           {/* subtle glow */}
           <div className="absolute inset-0 bg-primary/5 pointer-events-none" />
 
           <CardHeader className="space-y-2">
-            <CardTitle className="text-2xl font-extrabold">
+            <CardTitle 
+              className="text-2xl font-extrabold"
+              style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}
+            >
               Create your account
             </CardTitle>
-            <CardDescription className="text-center">
+            <CardDescription style={{ color: isLight ? '#A38970' : '#CBD5E1' }} className="text-center">
               Start learning with structure and confidence
             </CardDescription>
             <CardAction>
@@ -115,21 +128,30 @@ export default function SignupClient() {
           <CardContent>
             <form onSubmit={handleSignup} className="flex flex-col gap-5">
               {error && (
-                <p className="text-sm text-red-500 text-center">{error}</p>
+                <p style={{ color: '#EF4444' }} className="text-sm text-center">{error}</p>
               )}
 
               {/* PROFILE PREVIEW */}
-              <div className="flex items-center gap-4 rounded-xl bg-muted/50 p-4">
+              <div 
+                className="flex items-center gap-4 rounded-xl p-4"
+                style={{
+                  backgroundColor: isLight ? '#F7F2E8' : '#0F172A',
+                  borderColor: isLight ? '#E0D5C7' : '#334155',
+                }}
+              >
                 <Avatar>
                   <AvatarFallback className="font-bold">
                     {name ? name.charAt(0).toUpperCase() : "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-semibold">
+                  <p 
+                    className="text-sm font-semibold"
+                    style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}
+                  >
                     Create your account
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p style={{ color: isLight ? '#A38970' : '#CBD5E1' }} className="text-xs">
                     Join 5,000+ learners and grow confidently
                   </p>
                 </div>
@@ -179,7 +201,7 @@ export default function SignupClient() {
                   checked={agree}
                   onCheckedChange={(v) => setAgree(Boolean(v))}
                 />
-                <span className="text-sm">
+                <span className="text-sm" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>
                   I agree to the Terms of Service
                 </span>
               </label>
@@ -195,11 +217,17 @@ export default function SignupClient() {
 
               {/* DIVIDER */}
               <div className="flex items-center gap-3">
-                <div className="h-px flex-1 bg-border" />
-                <span className="text-xs text-muted-foreground">
+                <div 
+                  className="h-px flex-1"
+                  style={{ backgroundColor: isLight ? '#E0D5C7' : '#334155' }}
+                />
+                <span className="text-xs" style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>
                   Or continue with
                 </span>
-                <div className="h-px flex-1 bg-border" />
+                <div 
+                  className="h-px flex-1"
+                  style={{ backgroundColor: isLight ? '#E0D5C7' : '#334155' }}
+                />
               </div>
 
               {/* OAUTH */}
@@ -213,14 +241,15 @@ export default function SignupClient() {
               </div>
 
               {/* LOGIN LINK */}
-              <p className="text-center text-sm text-muted-foreground">
+              <p className="text-center text-sm" style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>
                 Already have an account?{" "}
                 <button
                   type="button"
                   onClick={() =>
                     router.push(course ? `/login?course=${course}` : "/login")
                   }
-                  className="text-primary font-medium underline"
+                  className="font-medium underline"
+                  style={{ color: isLight ? '#D1AF62' : '#4FD1FF' }}
                 >
                   Login
                 </button>

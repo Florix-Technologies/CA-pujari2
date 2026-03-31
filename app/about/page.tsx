@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
+import { useTheme } from "@/hooks/useTheme";
 import { Award, BookOpen, Users, Lightbulb } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Playfair_Display } from "next/font/google";
@@ -60,23 +61,24 @@ export default function AboutPage() {
   const storyRef = useRef<HTMLElement>(null);
   const { scrollYProgress: storyScroll } = useScroll({ target: storyRef, offset: ["start end", "end start"] });
   const storyImgY = useTransform(storyScroll, [0, 1], ["15%", "-15%"]);
+  const { isLight } = useTheme();
 
   return (
     <main
       style={{
-        '--fin-bg-primary': '#F7F2E8',
-        '--fin-bg-secondary': '#EBE5D8',
-        '--fin-bg-accent': '#DFD8CC',
-        '--fin-gradient-hero': 'linear-gradient(135deg, #FBF8F2 0%, #F7F2E8 50%, #EBE5D8 100%)',
-        '--fin-text-primary': '#3E3730',
-        '--fin-text-secondary': '#645E56',
-        '--fin-text-light': '#8A847C',
-        '--fin-accent-gold': '#D1AF62',
-        '--fin-accent-soft-gold': '#E0C991',
-        '--fin-border-light': '#D6CCBE',
-        '--fin-border-divider': '#A38970'
+        '--fin-bg-primary': isLight ? '#F7F2E8' : '#0F172A',
+        '--fin-bg-secondary': isLight ? '#EBE5D8' : '#1A2847',
+        '--fin-bg-accent': isLight ? '#DFD8CC' : '#243456',
+        '--fin-gradient-hero': isLight ? 'linear-gradient(135deg, #FBF8F2 0%, #F7F2E8 50%, #EBE5D8 100%)' : 'linear-gradient(135deg, #0F172A 0%, #1A2847 50%, #243456 100%)',
+        '--fin-text-primary': isLight ? '#3E3730' : '#E0E7FF',
+        '--fin-text-secondary': isLight ? '#645E56' : '#C7D2FE',
+        '--fin-text-light': isLight ? '#8A847C' : '#A5B4FC',
+        '--fin-accent-gold': isLight ? '#D1AF62' : '#4FD1FF',
+        '--fin-accent-soft-gold': isLight ? '#E0C991' : '#3B82F6',
+        '--fin-border-light': isLight ? '#D6CCBE' : '#4FD1FF',
+        '--fin-border-divider': isLight ? '#A38970' : '#334155'
       } as React.CSSProperties}
-      className="bg-[var(--fin-bg-primary)] min-h-screen text-[var(--fin-text-primary)] transition-colors duration-500 font-sans"
+      className={`${isLight ? 'bg-[var(--fin-bg-primary)]' : 'bg-[#0F172A]'} min-h-screen text-[var(--fin-text-primary)] transition-colors duration-500 font-sans`}
     >
       <Navigation />
 
