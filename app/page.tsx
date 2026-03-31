@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
+import { useTheme } from "@/hooks/useTheme"
 import Link from "next/link"
 import { Star, Users, TrendingUp } from "lucide-react"
 import { motion, useScroll, useTransform, useMotionValueEvent, useSpring } from "framer-motion"
@@ -14,6 +15,7 @@ const FRAME_COUNT = 100
 export default function Home() {
   const words = ["Learn", "Practice", "Trade"]
   const [index, setIndex] = useState(0)
+  const { isLight } = useTheme()
 
   // Scroll sequence state
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -95,7 +97,7 @@ export default function Home() {
       <Navigation />
 
       {/* HERO — SEQUENCE ANIMATION */}
-      <section ref={heroRef} className="relative h-[300vh] bg-[#F7F2E8]">
+      <section ref={heroRef} className={`relative h-[400vh] ${isLight ? "bg-[#F7F2E8]" : "bg-[#0F172A]"}`}>
         <div className="sticky top-0 h-[100vh] overflow-hidden flex items-center justify-center">
           <canvas
             ref={canvasRef}
@@ -110,8 +112,21 @@ export default function Home() {
       <BentoGallery />
 
       {/* TRUST SIGNALS */}
-      <section className="py-48 bg-white text-[#3E3730] relative overflow-hidden border-t border-[#A38970]/20">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(209,175,98,0.05),transparent_50%)] pointer-events-none" />
+      <section 
+        className={`py-48 relative overflow-hidden ${isLight ? "border-t border-[#A38970]/20" : "border-t border-[#4FD1FF]/20"}`}
+        style={{
+          backgroundColor: isLight ? '#FFFFFF' : '#0F172A',
+          color: isLight ? '#3E3730' : '#E0E7FF'
+        }}
+      >
+        <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: isLight 
+            ? 'radial-gradient(ellipse at top, rgba(209,175,98,0.05), transparent 50%)'
+            : 'radial-gradient(ellipse at top, rgba(79,209,255,0.05), transparent 50%)'
+        }}
+      />
         <motion.div
            variants={stagger}
            initial="hidden"
@@ -131,14 +146,22 @@ export default function Home() {
                 variants={fadeUp}
                 whileHover={{ scale: 1.02, y: -10 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="group relative rounded-[1.5rem] bg-white border border-[#A38970]/10 p-8 text-center shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_40px_rgba(209,175,98,0.15)] transition-all duration-500 overflow-hidden"
+                className="group relative rounded-[1.5rem] border p-8 text-center shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_40px_rgba(209,175,98,0.15)] transition-all duration-500 overflow-hidden"
+                style={{
+                  backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
+                  borderColor: isLight ? '#A38970/10' : '#4FD1FF/30'
+                }}
               >
                 {/* Sexy Hover Glow */}
                 <div className="absolute inset-0 bg-gradient-to-b from-[#F7F2E8] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 
                 {/* Animated Icon Badge */}
                 <motion.div
-                  className="relative mx-auto mb-6 w-16 h-16 rounded-2xl bg-white shadow-sm border border-[#A38970]/10 flex items-center justify-center group-hover:border-[#D1AF62]/30 group-hover:shadow-[0_0_20px_rgba(209,175,98,0.2)] transition-all duration-500"
+                  className="relative mx-auto mb-6 w-16 h-16 rounded-2xl shadow-sm border flex items-center justify-center group-hover:shadow-[0_0_20px_rgba(209,175,98,0.2)] transition-all duration-500"
+                  style={{
+                    backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
+                    borderColor: isLight ? '#A38970/10' : '#4FD1FF/20'
+                  }}
                   whileHover={{ rotate: [0, -10, 10, -5, 5, 0], scale: 1.1 }}
                   transition={{ duration: 0.6, ease: "easeInOut" }}
                 >
@@ -146,10 +169,10 @@ export default function Home() {
                 </motion.div>
 
                 {/* Typography */}
-                <div className="relative z-10 text-5xl font-extrabold text-[#3E3730] mb-2 tracking-tighter drop-shadow-sm group-hover:text-[#D1AF62] transition-colors duration-500">
+                <div className="relative z-10 text-5xl font-extrabold mb-2 tracking-tighter drop-shadow-sm group-hover:transition-colors duration-500" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>
                   {item.stat}
                 </div>
-                <div className="relative z-10 text-[#A38970] font-bold text-xs uppercase tracking-[0.2em] group-hover:text-[#3E3730] transition-colors duration-500">
+                <div className="relative z-10 font-bold text-xs uppercase tracking-[0.2em] group-hover:transition-colors duration-500" style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>
                   {item.label}
                 </div>
                 
@@ -162,8 +185,22 @@ export default function Home() {
       </section>
 
       {/* TESTIMONIALS — SOCIAL PROOF */}
-      <section className="py-32 bg-white text-[#3E3730] relative border-t border-[#A38970]/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(209,175,98,0.1),transparent_70%)] pointer-events-none" />
+      <section 
+        className="py-32 relative"
+        style={{
+          backgroundColor: isLight ? '#FFFFFF' : '#0F172A',
+          color: isLight ? '#3E3730' : '#E0E7FF',
+          borderTop: `1px solid ${isLight ? '#A38970/10' : '#4FD1FF/20'}`
+        }}
+      >
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: isLight 
+            ? 'radial-gradient(circle at center, rgba(209,175,98,0.1), transparent 70%)'
+            : 'radial-gradient(circle at center, rgba(79,209,255,0.1), transparent 70%)'
+        }}
+      />
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -173,14 +210,16 @@ export default function Home() {
         >
           <motion.h2
             variants={fadeUp}
-            className="text-4xl md:text-5xl font-bold text-center mb-6 tracking-tight drop-shadow-sm text-[#3E3730]"
+            className="text-4xl md:text-5xl font-bold text-center mb-6 tracking-tight drop-shadow-sm"
+            style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}
           >
             Learners, Not Just Students
           </motion.h2>
 
           <motion.p
             variants={fadeUp}
-            className="text-center text-[#A38970] mb-20 max-w-2xl mx-auto text-lg"
+            className="text-center mb-20 max-w-2xl mx-auto text-lg"
+            style={{ color: isLight ? '#A38970' : '#CBD5E1' }}
           >
             Real people. Real progress. Real confidence. Read what our community has to say.
           </motion.p>
@@ -209,7 +248,12 @@ export default function Home() {
               <motion.div
                 key={i}
                 variants={fadeUp}
-                className="rounded-3xl bg-white border border-[#A38970]/20 p-10 shadow-lg hover:shadow-xl transition-shadow flex flex-col justify-between"
+                className="rounded-3xl border p-10 shadow-lg hover:shadow-xl transition-shadow flex flex-col justify-between"
+                style={{
+                  backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
+                  borderColor: isLight ? '#A38970/20' : '#4FD1FF/30',
+                  color: isLight ? '#3E3730' : '#E0E7FF'
+                }}
               >
                 <div>
                   <div className="flex gap-1 mb-6">
@@ -218,18 +262,18 @@ export default function Home() {
                     ))}
                   </div>
 
-                  <p className="text-[#3E3730] mb-10 leading-relaxed text-lg italic font-medium">
+                  <p className="mb-10 leading-relaxed text-lg italic font-medium" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>
                     &ldquo;{t.text}&rdquo;
                   </p>
                 </div>
 
-                <div className="flex items-center gap-4 border-t border-[#A38970]/20 pt-6">
-                  <div className="w-12 h-12 rounded-full bg-[#D1AF62]/10 text-[#D1AF62] flex items-center justify-center font-bold border border-[#D1AF62]/30 shadow-inner">
+                <div className="flex items-center gap-4 border-t pt-6" style={{ borderColor: isLight ? '#A38970/20' : '#4FD1FF/30' }}>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold shadow-inner" style={{ backgroundColor: isLight ? '#D1AF62/10' : '#4FD1FF/10', color: isLight ? '#D1AF62' : '#4FD1FF', border: `1px solid ${isLight ? '#D1AF62/30' : '#4FD1FF/30'}` }}>
                     {t.initials}
                   </div>
                   <div>
-                    <p className="font-semibold text-[#3E3730]">{t.name}</p>
-                    <p className="text-sm text-[#A38970]">{t.role}</p>
+                    <p className="font-semibold" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>{t.name}</p>
+                    <p className="text-sm" style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>{t.role}</p>
                   </div>
                 </div>
               </motion.div>
@@ -239,8 +283,21 @@ export default function Home() {
       </section>
 
       {/* CTA — PERSONAL INVITE */}
-      <section className="py-48 bg-white text-[#3E3730] relative border-t border-[#A38970]/20 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(188,114,96,0.06),transparent_60%)] pointer-events-none" />
+      <section 
+        className="py-48 relative overflow-hidden"
+        style={{
+          backgroundColor: isLight ? '#FFFFFF' : '#0F172A',
+          borderTop: `1px solid ${isLight ? '#A38970/20' : '#4FD1FF/20'}`
+        }}
+      >
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: isLight 
+              ? 'radial-gradient(circle at bottom, rgba(188,114,96,0.06), transparent 60%)'
+              : 'radial-gradient(circle at bottom, rgba(79,209,255,0.08), transparent 60%)'
+          }}
+        />
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -248,18 +305,16 @@ export default function Home() {
           transition={{ duration: 0.7 }}
           className="relative z-10 max-w-4xl mx-auto px-6 text-center"
         >
-          <h2 className="text-5xl font-extrabold mb-8 tracking-tight drop-shadow-sm text-[#3E3730]">
+          <h2 className="text-5xl font-extrabold mb-8 tracking-tight drop-shadow-sm" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>
             Start Your Trading Journey the Right Way
           </h2>
-          <p className="text-xl text-[#A38970] mb-12 max-w-2xl mx-auto">
+          <p className="text-xl mb-12 max-w-2xl mx-auto" style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>
             Learn with structure, discipline, and clarity &mdash; not shortcuts.
           </p>
 
           <Link
             href="/courses"
-            className="inline-block px-12 py-5 bg-[#D1AF62] text-white
-            rounded-full font-bold text-lg hover:shadow-[0_0_30px_rgba(209,175,98,0.4)]
-            hover:bg-[#C09E51] transition-all duration-300 hover:scale-105"
+            className="inline-block px-12 py-5 bg-[#D1AF62] text-white rounded-full font-bold text-lg hover:shadow-[0_0_30px_rgba(209,175,98,0.4)] hover:bg-[#C09E51] transition-all duration-300 hover:scale-105"
           >
             Explore Courses
           </Link>

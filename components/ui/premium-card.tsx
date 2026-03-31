@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { useTheme } from "@/hooks/useTheme"
 import { premiumEasing, premiumStagger, premiumFadeUp, microPop } from "@/lib/animations"
 import { Playfair_Display } from "next/font/google"
 import Link from "next/link"
@@ -60,6 +61,7 @@ export function PremiumCard({
   topIcon,
   fullWidthButton = false
 }: PremiumCardProps) {
+  const { isLight } = useTheme()
   const accentClass = accentColor === "gold" 
     ? "group-hover:bg-[var(--fin-accent-gold)]" 
     : "group-hover:bg-[var(--fin-text-secondary)]"
@@ -82,15 +84,38 @@ export function PremiumCard({
       variants={premiumFadeUp}
       whileHover={{ y: -10, scale: 1.02 }}
       transition={{ duration: 0.5, ease: premiumEasing }}
-      className="group relative flex flex-col rounded-2xl bg-[var(--fin-bg-primary)] border border-[var(--fin-border-light)] shadow-sm hover:border-[var(--fin-accent-gold)]/40 hover:shadow-[0_30px_60px_-15px_rgba(62,55,48,0.15)] overflow-hidden transition-all duration-500 will-change-transform"
+      className="group relative flex flex-col rounded-2xl border shadow-sm hover:shadow-[0_30px_60px_-15px_rgba(62,55,48,0.15)] overflow-hidden transition-all duration-500 will-change-transform"
+      style={{
+        backgroundColor: isLight ? '#FFFFFF' : '#1F3A50',
+        borderColor: isLight ? 'var(--fin-border-light)' : '#4FD1FF',
+        borderWidth: '1px'
+      }}
     >
       {/* Subtle internal atmospheric glow on hover */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+        style={{
+          background: isLight 
+            ? 'linear-gradient(to bottom, rgba(255,255,255,0.4), transparent)'
+            : 'linear-gradient(to bottom, rgba(79,209,255,0.1), transparent)'
+        }}
+      />
 
       {/* Clean top accent bar */}
-      <div className={`h-2 w-full bg-[var(--fin-border-divider)] transition-colors duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${accentClass}`} />
+      <div 
+        className="h-2 w-full transition-colors duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+        style={{
+          backgroundColor: isLight ? '#D6CCBE' : '#4FD1FF',
+        }}
+      />
 
-      <div className="p-8 md:p-10 flex flex-col h-full bg-white relative z-10 transition-colors duration-500 group-hover:bg-transparent">
+      <div 
+        className="p-8 md:p-10 flex flex-col h-full relative z-10 transition-colors duration-500 group-hover:bg-transparent"
+        style={{
+          backgroundColor: isLight ? '#FFFFFF' : '#1F3A50',
+          color: isLight ? 'var(--fin-text-primary)' : '#E0E7FF'
+        }}
+      >
         
         {/* Top Icon Area */}
         {topIcon && (
@@ -164,33 +189,32 @@ export function PremiumCard({
             </div>
           )}
 
-          {onClick ? (
-            <button
-              onClick={onClick}
-              className={`group/btn px-6 py-3 bg-white border border-[var(--fin-border-light)] text-[var(--fin-text-primary)]
-              rounded-xl font-semibold flex items-center gap-2
-              hover:text-white transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-sm hover:shadow-md hover:-translate-y-1 ${buttonHoverColors} ${fullWidthButton ? 'w-full justify-center' : ''}`}
-            >
-              {actionLabel}
-              <ArrowRight
-                size={16}
-                className={`transform group-hover/btn:translate-x-1.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/btn:text-white ${iconHoverColor}`}
-              />
-            </button>
-          ) : (
-            <Link
-              href={actionUrl}
-              className={`group/btn px-6 py-3 bg-white border border-[var(--fin-border-light)] text-[var(--fin-text-primary)]
-              rounded-xl font-semibold flex items-center gap-2
-              hover:text-white transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-sm hover:shadow-md hover:-translate-y-1 ${buttonHoverColors} ${fullWidthButton ? 'w-full justify-center' : ''}`}
-            >
-              {actionLabel}
-              <ArrowRight
-                size={16}
-                className={`transform group-hover/btn:translate-x-1.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/btn:text-white ${iconHoverColor}`}
-              />
-            </Link>
-          )}
+          <Link
+            href={actionUrl}
+            className={`group/btn px-6 py-3 border rounded-xl font-semibold flex items-center gap-2 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-sm hover:shadow-md hover:-translate-y-1 ${buttonHoverColors} ${fullWidthButton ? 'w-full justify-center' : ''}`}
+            style={{
+              backgroundColor: isLight ? '#FFFFFF' : '#0F172A',
+              borderColor: isLight ? 'var(--fin-border-light)' : '#4FD1FF',
+              color: isLight ? '#3E3730' : '#E0E7FF',
+              fontWeight: '600'
+            }}
+            onMouseEnter={(e) => {
+              if (!isLight) {
+                e.currentTarget.style.color = '#FFFFFF'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isLight) {
+                e.currentTarget.style.color = '#E0E7FF'
+              }
+            }}
+          >
+            {actionLabel}
+            <ArrowRight
+              size={16}
+              className={`transform group-hover/btn:translate-x-1.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/btn:text-white ${iconHoverColor}`}
+            />
+          </Link>
         </motion.div>
 
       </div>

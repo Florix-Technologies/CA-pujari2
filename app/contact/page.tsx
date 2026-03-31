@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
+import { useTheme } from "@/hooks/useTheme"
 import { Mail, Linkedin, Youtube, Phone, MapPin, CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { fadeUp, stagger } from "@/lib/animations"
@@ -28,6 +29,7 @@ type ContactFormValues = z.infer<typeof contactSchema>
 
 export default function ContactPage() {
   const [isSuccess, setIsSuccess] = useState(false)
+  const { isLight } = useTheme()
 
   const {
     register,
@@ -66,19 +68,19 @@ export default function ContactPage() {
   return (
     <main
       style={{
-        '--fin-bg-primary': '#F7F2E8',
-        '--fin-bg-secondary': '#EBE5D8',
-        '--fin-bg-accent': '#DFD8CC',
-        '--fin-gradient-hero': 'linear-gradient(90deg, #FBF8F2 0%, #F7F2E8 50%, #F5F0E6 100%)',
-        '--fin-text-primary': '#3E3730',
-        '--fin-text-secondary': '#645E56',
-        '--fin-text-light': '#8A847C',
-        '--fin-accent-gold': '#D1AF62',
-        '--fin-accent-soft-gold': '#A38970',
-        '--fin-border-light': '#A38970',
-        '--fin-border-divider': '#D6CCBE'
+        '--fin-bg-primary': isLight ? '#F7F2E8' : '#0F172A',
+        '--fin-bg-secondary': isLight ? '#EBE5D8' : '#1A2847',
+        '--fin-bg-accent': isLight ? '#DFD8CC' : '#243456',
+        '--fin-gradient-hero': isLight ? 'linear-gradient(90deg, #FBF8F2 0%, #F7F2E8 50%, #F5F0E6 100%)' : 'linear-gradient(90deg, #0F172A 0%, #1A2847 50%, #243456 100%)',
+        '--fin-text-primary': isLight ? '#3E3730' : '#E0E7FF',
+        '--fin-text-secondary': isLight ? '#645E56' : '#C7D2FE',
+        '--fin-text-light': isLight ? '#8A847C' : '#A5B4FC',
+        '--fin-accent-gold': isLight ? '#D1AF62' : '#4FD1FF',
+        '--fin-accent-soft-gold': isLight ? '#A38970' : '#3B82F6',
+        '--fin-border-light': isLight ? '#A38970' : '#4FD1FF',
+        '--fin-border-divider': isLight ? '#D6CCBE' : '#334155'
       } as React.CSSProperties}
-      className="bg-white min-h-screen text-[var(--fin-text-primary)] transition-colors duration-500 font-sans"
+      className={`${isLight ? 'bg-white text-[var(--fin-text-primary)]' : 'bg-[#0F172A] text-[#E0E7FF]'} min-h-screen transition-colors duration-500 font-sans`}
     >
       <Navigation />
 
@@ -107,7 +109,10 @@ export default function ContactPage() {
       </section>
 
       {/* CONTACT INFO — FLOATING TRUST */}
-      <section className="py-24 bg-white">
+      <section 
+        className="py-24"
+        style={{ backgroundColor: isLight ? '#FFFFFF' : '#0F172A' }}
+      >
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -127,10 +132,27 @@ export default function ContactPage() {
                 variants={fadeUp}
                 whileHover={{ y: -10, scale: 1.02 }}
                 transition={{ duration: 0.5, ease: premiumEasing }}
-                className="group relative flex flex-col rounded-2xl bg-[var(--fin-bg-primary)] p-10 text-center border border-[var(--fin-border-light)] shadow-sm hover:border-[var(--fin-accent-gold)]/40 hover:shadow-[0_30px_60px_-15px_rgba(62,55,48,0.15)] transition-all duration-500 will-change-transform overflow-hidden"
+                className="group relative flex flex-col rounded-2xl bg-[var(--fin-bg-primary)] p-10 text-center border shadow-sm transition-all duration-500 will-change-transform overflow-hidden"
+                style={{
+                  backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
+                  borderColor: isLight ? 'var(--fin-border-light)' : '#4FD1FF'
+                }}
               >
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
-                <div className="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center mb-6 border border-[var(--fin-border-divider)] group-hover:border-[var(--fin-accent-gold)] transition-colors duration-500 relative z-10">
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+                  style={{
+                    background: isLight
+                      ? 'linear-gradient(to bottom, rgba(255,255,255,0.4), transparent)'
+                      : 'linear-gradient(to bottom, rgba(79,209,255,0.1), transparent)'
+                  }}
+                />
+                <div 
+                  className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 border transition-colors duration-500 relative z-10"
+                  style={{
+                    backgroundColor: isLight ? '#FFFFFF' : '#0F172A',
+                    borderColor: isLight ? 'var(--fin-border-divider)' : '#4FD1FF'
+                  }}
+                >
                   <Icon className="text-[var(--fin-accent-gold)] group-hover:scale-110 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]" size={26} />
                 </div>
                 <h3 className={`font-bold text-2xl mb-3 text-[var(--fin-text-primary)] relative z-10 ${playfair.className}`}>{item.title}</h3>
@@ -142,7 +164,10 @@ export default function ContactPage() {
       </section>
 
       {/* MESSAGE FORM — PREMIUM VALIDATION & UX */}
-      <section className="py-32 bg-[var(--fin-bg-primary)] border-t border-[var(--fin-border-divider)] relative">
+      <section 
+        className="py-32 border-t border-[var(--fin-border-divider)] relative"
+        style={{ backgroundColor: isLight ? '#FFFFFF' : '#0F172A' }}
+      >
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -150,7 +175,13 @@ export default function ContactPage() {
           transition={{ duration: 0.7, ease: premiumEasing }}
           className="max-w-3xl mx-auto px-6"
         >
-          <div className="rounded-3xl bg-white p-10 md:p-14 shadow-xl border border-[var(--fin-border-light)] relative min-h-[600px] flex flex-col justify-center">
+          <div 
+            className="rounded-3xl p-10 md:p-14 shadow-xl border relative min-h-[600px] flex flex-col justify-center"
+            style={{
+              backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
+              borderColor: isLight ? 'var(--fin-border-light)' : '#4FD1FF'
+            }}
+          >
             <AnimatePresence mode="wait">
               {!isSuccess ? (
                 <motion.div
@@ -177,9 +208,13 @@ export default function ContactPage() {
                           {...register("fullName")}
                           type="text"
                           placeholder="Your name"
-                          className={`w-full px-5 py-4 rounded-xl border bg-white transition-all duration-300 focus:outline-none focus:ring-4 text-[var(--fin-text-primary)] ${
+                          style={{
+                            backgroundColor: isLight ? '#FFFFFF' : '#0F172A',
+                            color: isLight ? 'var(--fin-text-primary)' : '#E0E7FF'
+                          }}
+                          className={`w-full px-5 py-4 rounded-xl border transition-all duration-300 focus:outline-none focus:ring-4 ${
                             errors.fullName 
-                              ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20 bg-red-50" 
+                              ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20" 
                               : "border-[var(--fin-border-divider)] hover:border-[var(--fin-accent-gold)]/50 focus:border-[var(--fin-accent-gold)] focus:ring-[var(--fin-accent-gold)]/20"
                           }`}
                         />
@@ -195,9 +230,13 @@ export default function ContactPage() {
                           {...register("email")}
                           type="email"
                           placeholder="you@example.com"
-                          className={`w-full px-5 py-4 rounded-xl border bg-white transition-all duration-300 focus:outline-none focus:ring-4 text-[var(--fin-text-primary)] ${
+                          style={{
+                            backgroundColor: isLight ? '#FFFFFF' : '#0F172A',
+                            color: isLight ? 'var(--fin-text-primary)' : '#E0E7FF'
+                          }}
+                          className={`w-full px-5 py-4 rounded-xl border transition-all duration-300 focus:outline-none focus:ring-4 ${
                             errors.email 
-                              ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20 bg-red-50" 
+                              ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20" 
                               : "border-[var(--fin-border-divider)] hover:border-[var(--fin-accent-gold)]/50 focus:border-[var(--fin-accent-gold)] focus:ring-[var(--fin-accent-gold)]/20"
                           }`}
                         />
@@ -214,9 +253,13 @@ export default function ContactPage() {
                         {...register("subject")}
                         type="text"
                         placeholder="What would you like to talk about?"
-                        className={`w-full px-5 py-4 rounded-xl border bg-white transition-all duration-300 focus:outline-none focus:ring-4 text-[var(--fin-text-primary)] ${
+                        style={{
+                          backgroundColor: isLight ? '#FFFFFF' : '#0F172A',
+                          color: isLight ? 'var(--fin-text-primary)' : '#E0E7FF'
+                        }}
+                        className={`w-full px-5 py-4 rounded-xl border transition-all duration-300 focus:outline-none focus:ring-4 ${
                           errors.subject 
-                            ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20 bg-red-50" 
+                            ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20" 
                             : "border-[var(--fin-border-divider)] hover:border-[var(--fin-accent-gold)]/50 focus:border-[var(--fin-accent-gold)] focus:ring-[var(--fin-accent-gold)]/20"
                         }`}
                       />
@@ -232,9 +275,13 @@ export default function ContactPage() {
                         {...register("message")}
                         rows={6}
                         placeholder="Write your message here..."
-                        className={`w-full px-5 py-4 rounded-xl border bg-white resize-none transition-all duration-300 focus:outline-none focus:ring-4 text-[var(--fin-text-primary)] ${
+                        style={{
+                          backgroundColor: isLight ? '#FFFFFF' : '#0F172A',
+                          color: isLight ? 'var(--fin-text-primary)' : '#E0E7FF'
+                        }}
+                        className={`w-full px-5 py-4 rounded-xl border resize-none transition-all duration-300 focus:outline-none focus:ring-4 ${
                           errors.message 
-                            ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20 bg-red-50" 
+                            ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20" 
                             : "border-[var(--fin-border-divider)] hover:border-[var(--fin-accent-gold)]/50 focus:border-[var(--fin-accent-gold)] focus:ring-[var(--fin-accent-gold)]/20"
                         }`}
                       />
@@ -294,7 +341,12 @@ export default function ContactPage() {
                       reset()
                       setIsSuccess(false)
                     }}
-                    className="px-8 py-4 bg-white border border-[var(--fin-border-light)] text-[var(--fin-text-primary)] font-semibold rounded-xl hover:border-[var(--fin-accent-gold)] transition-colors shadow-sm"
+                    style={{
+                      backgroundColor: isLight ? '#FFFFFF' : '#0F172A',
+                      borderColor: isLight ? 'var(--fin-border-light)' : '#4FD1FF',
+                      color: isLight ? 'var(--fin-text-primary)' : '#E0E7FF'
+                    }}
+                    className="px-8 py-4 border font-semibold rounded-xl transition-colors shadow-sm"
                   >
                     Send Another Message
                   </motion.button>
@@ -306,7 +358,10 @@ export default function ContactPage() {
       </section>
 
       {/* SOCIAL — CREATOR PRESENCE */}
-      <section className="py-24 bg-white border-t border-[var(--fin-border-divider)]">
+      <section 
+        className="py-24 border-t border-[var(--fin-border-divider)]"
+        style={{ backgroundColor: isLight ? '#FFFFFF' : '#0F172A' }}
+      >
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}

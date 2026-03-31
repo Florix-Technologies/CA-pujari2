@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef } from "react"
+import { useTheme } from "@/hooks/useTheme"
 import { motion, useScroll, useTransform } from "framer-motion"
 import Link from "next/link"
 
@@ -38,6 +39,7 @@ const cellDirections = [
 ]
 
 export function BentoGallery() {
+  const { isLight } = useTheme()
   const containerRef = useRef<HTMLDivElement>(null)
 
   const { scrollYProgress } = useScroll({
@@ -67,7 +69,10 @@ export function BentoGallery() {
 
   return (
     <div ref={containerRef} className="relative h-[400vh]">
-      <div className="sticky top-0 h-screen overflow-hidden bg-white flex items-center justify-center">
+      <div 
+        className="sticky top-0 h-screen overflow-hidden flex items-center justify-center"
+        style={{ backgroundColor: isLight ? '#FFFFFF' : '#0F172A' }}
+      >
 
         {/* ── Phase 1: Headline ── */}
         <motion.div
@@ -77,26 +82,29 @@ export function BentoGallery() {
           <p className="uppercase tracking-[0.25em] text-xs font-bold text-[#D1AF62] mb-5">
             Your Trading Education Partner
           </p>
-          <h2 className="text-5xl md:text-7xl font-extrabold tracking-tighter text-[#3E3730] leading-tight max-w-3xl">
+          <h2 className="text-5xl md:text-7xl font-extrabold tracking-tighter leading-tight max-w-3xl" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>
             Master The Markets
           </h2>
-          <p className="mt-6 max-w-lg text-[#A38970] text-base md:text-lg font-medium leading-relaxed">
+          <p className="mt-6 max-w-lg text-base md:text-lg font-medium leading-relaxed" style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>
             Dive deep into technical analysis, risk management, and trading
             psychology. See the unseen with our advanced market charting frameworks.
           </p>
           <div className="flex items-center justify-center gap-4 mt-8 pointer-events-auto">
             <Link
               href="/courses"
-              className="px-8 py-4 bg-[#D1AF62] text-white rounded-full font-bold text-base
-              hover:bg-[#C09E51] hover:shadow-[0_0_24px_rgba(209,175,98,0.45)]
-              transition-all duration-300 hover:scale-105"
+              className="px-8 py-4 bg-[#D1AF62] text-white rounded-full font-bold text-base hover:bg-[#C09E51] hover:shadow-[0_0_24px_rgba(209,175,98,0.45)] transition-all duration-300 hover:scale-105"
             >
               Start Learning
             </Link>
             <Link
               href="/courses"
-              className="px-8 py-4 text-[#3E3730] font-bold text-base rounded-full
-              border border-[#A38970]/30 hover:bg-[#3E3730]/5 transition-colors"
+              className="px-8 py-4 font-bold text-base rounded-full transition-colors"
+              style={{
+                color: isLight ? '#3E3730' : '#E0E7FF',
+                borderWidth: '1px',
+                borderColor: isLight ? '#A38970/30' : '#4FD1FF/30',
+                backgroundColor: isLight ? '#F7F2E8' : '#1E293B'
+              }}
             >
               View Curriculum
             </Link>
