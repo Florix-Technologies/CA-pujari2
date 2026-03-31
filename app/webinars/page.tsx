@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
+import { useTheme } from "@/hooks/useTheme"
 import { motion } from "framer-motion"
 import { Playfair_Display } from "next/font/google"
 import { Calendar, Users, FileText, CheckCircle, Video, CreditCard, Sparkles } from "lucide-react"
@@ -102,6 +103,7 @@ const pastSessions = [
 ]
 
 export default function WebinarsPage() {
+  const { isLight } = useTheme()
   const [activeModal, setActiveModal] = useState<ActiveModalProps>({ type: null, id: "", title: "", price: "" })
 
   const closeModal = () => setActiveModal({ type: null, id: "", title: "", price: "" })
@@ -119,19 +121,19 @@ export default function WebinarsPage() {
     <>
       <main
         style={{
-          '--fin-bg-primary': '#F7F2E8',
-          '--fin-bg-secondary': '#EBE5D8',
-          '--fin-bg-accent': '#DFD8CC',
-          '--fin-gradient-hero': 'linear-gradient(90deg, #FBF8F2 0%, #F7F2E8 50%, #F5F0E6 100%)',
-          '--fin-text-primary': '#3E3730',
-          '--fin-text-secondary': '#645E56',
-          '--fin-text-light': '#8A847C',
-          '--fin-accent-gold': '#D1AF62',
-          '--fin-accent-soft-gold': '#A38970',
-          '--fin-border-light': '#A38970',
-          '--fin-border-divider': '#D6CCBE'
+          '--fin-bg-primary': isLight ? '#F7F2E8' : '#0F172A',
+          '--fin-bg-secondary': isLight ? '#EBE5D8' : '#1A2847',
+          '--fin-bg-accent': isLight ? '#DFD8CC' : '#243456',
+          '--fin-gradient-hero': isLight ? 'linear-gradient(90deg, #FBF8F2 0%, #F7F2E8 50%, #F5F0E6 100%)' : 'linear-gradient(90deg, #0F172A 0%, #1A2847 50%, #243456 100%)',
+          '--fin-text-primary': isLight ? '#3E3730' : '#E0E7FF',
+          '--fin-text-secondary': isLight ? '#645E56' : '#C7D2FE',
+          '--fin-text-light': isLight ? '#8A847C' : '#A5B4FC',
+          '--fin-accent-gold': isLight ? '#D1AF62' : '#4FD1FF',
+          '--fin-accent-soft-gold': isLight ? '#A38970' : '#3B82F6',
+          '--fin-border-light': isLight ? '#A38970' : '#4FD1FF',
+          '--fin-border-divider': isLight ? '#D6CCBE' : '#334155'
         } as React.CSSProperties}
-        className="bg-white min-h-screen text-[var(--fin-text-primary)] transition-colors duration-500 font-sans"
+        className={`${isLight ? 'bg-white text-[var(--fin-text-primary)]' : 'bg-[#0F172A] text-[#E0E7FF]'} min-h-screen transition-colors duration-500 font-sans`}
       >
         <Navigation />
 
@@ -159,7 +161,7 @@ export default function WebinarsPage() {
             <motion.div
               variants={premiumFadeUp}
               className="mx-auto w-full max-w-4xl rounded-3xl p-10 md:p-14 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] backdrop-blur-md"
-              style={{ backgroundColor: 'rgba(247,242,232,0.85)', border: '1px solid rgba(214,204,190,0.4)' }}
+              style={{ backgroundColor: isLight ? 'rgba(247,242,232,0.85)' : 'rgba(15,23,42,0.85)', border: isLight ? '1px solid rgba(214,204,190,0.4)' : '1px solid rgba(79,209,255,0.2)' }}
             >
               <p className="uppercase tracking-[0.2em] text-[var(--fin-text-secondary)] mb-6 font-semibold text-sm">
                 Learn Live. Ask Questions. Grow Faster
@@ -177,7 +179,7 @@ export default function WebinarsPage() {
         </section>
 
         {/* SERVICES GRID */}
-        <section className="py-24 bg-white relative border-b border-[var(--fin-border-divider)]">
+        <section className="py-24 relative border-b border-[var(--fin-border-divider)]" style={{ backgroundColor: isLight ? '#FFFFFF' : '#0F172A' }}>
           <motion.div
             variants={premiumStagger}
             initial="hidden"
@@ -217,7 +219,7 @@ export default function WebinarsPage() {
         </section>
 
         {/* PAST SESSIONS SECTION */}
-        <section className="py-24 bg-[var(--fin-bg-primary)]/40 relative">
+        <section className="py-24 relative border-t border-[var(--fin-border-divider)]" style={{ backgroundColor: isLight ? 'rgba(247,242,232,0.4)' : 'rgba(15,23,42,0.4)' }}>
           <motion.div
             variants={premiumStagger}
             initial="hidden"
@@ -260,7 +262,7 @@ export default function WebinarsPage() {
         </section>
 
         {/* PAYMENT — SOFT TRUST */}
-        <section className="py-20 bg-[var(--fin-bg-primary)] border-t border-[var(--fin-border-divider)]">
+        <section className="py-20 border-t border-[var(--fin-border-divider)]" style={{ backgroundColor: isLight ? '#FFFFFF' : '#0F172A' }}>
           <motion.div
             variants={premiumStagger}
             initial="hidden"
@@ -273,19 +275,19 @@ export default function WebinarsPage() {
             </motion.h2>
 
             <motion.div variants={premiumStagger} className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <motion.div variants={premiumFadeUp} className="rounded-2xl bg-white border border-[var(--fin-border-divider)] py-6 flex items-center justify-center shadow-sm hover:shadow-md hover:border-[var(--fin-accent-gold)] transition-all duration-300">
+              <motion.div variants={premiumFadeUp} className="rounded-2xl border border-[var(--fin-border-divider)] py-6 flex items-center justify-center shadow-sm hover:shadow-md hover:border-[var(--fin-accent-gold)] transition-all duration-300" style={{ backgroundColor: '#FFFFFF' }}>
                 <Image src="/upi.svg" alt="UPI" width={72} height={72} />
               </motion.div>
 
-              <motion.div variants={premiumFadeUp} className="rounded-2xl bg-white border border-[var(--fin-border-divider)] py-6 flex items-center justify-center shadow-sm hover:shadow-md hover:border-[var(--fin-accent-gold)] transition-all duration-300">
+              <motion.div variants={premiumFadeUp} className="rounded-2xl border border-[var(--fin-border-divider)] py-6 flex items-center justify-center shadow-sm hover:shadow-md hover:border-[var(--fin-accent-gold)] transition-all duration-300" style={{ backgroundColor: '#FFFFFF' }}>
                 <Image src="/razorpay.svg" alt="Razorpay" width={96} height={48} />
               </motion.div>
 
-              <motion.div variants={premiumFadeUp} className="rounded-2xl bg-white border border-[var(--fin-border-divider)] py-6 flex items-center justify-center shadow-sm hover:shadow-md hover:border-[var(--fin-accent-gold)] transition-all duration-300">
+              <motion.div variants={premiumFadeUp} className="rounded-2xl border border-[var(--fin-border-divider)] py-6 flex items-center justify-center shadow-sm hover:shadow-md hover:border-[var(--fin-accent-gold)] transition-all duration-300" style={{ backgroundColor: '#FFFFFF' }}>
                 <Image src="/paytm.svg" alt="Paytm" width={96} height={48} />
               </motion.div>
 
-              <motion.div variants={premiumFadeUp} className="rounded-2xl bg-white border border-[var(--fin-border-divider)] py-6 flex flex-col gap-2 items-center justify-center shadow-sm hover:shadow-md hover:border-[var(--fin-accent-gold)] transition-all duration-300 text-[var(--fin-text-primary)]">
+              <motion.div variants={premiumFadeUp} className="rounded-2xl border border-[var(--fin-border-divider)] py-6 flex flex-col gap-2 items-center justify-center shadow-sm hover:shadow-md hover:border-[var(--fin-accent-gold)] transition-all duration-300 text-[#3E3730]" style={{ backgroundColor: '#FFFFFF' }}>
                 <CreditCard size={40} className="text-[var(--fin-accent-gold)]" />
                 <span className="text-xs font-semibold tracking-wider uppercase">Cards</span>
               </motion.div>
