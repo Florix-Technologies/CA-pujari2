@@ -22,6 +22,7 @@ export function Navigation() {
     { label: "Home", href: "/" },
     { label: "Courses", href: "/courses" },
     { label: "Webinars", href: "/webinars" },
+    { label: "NSE", href: "/nse" },
     { label: "Community", href: "/community" },
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
