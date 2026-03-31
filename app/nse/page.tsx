@@ -123,6 +123,41 @@ export default function NSEPage() {
 
       {/* PLANS GRID */}
       <section className="py-24 bg-white relative">
+        {/* SECTION 1: Foundational & Growth Programs */}
+        <motion.div
+          variants={premiumStagger}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="max-w-7xl mx-auto px-6 mb-24"
+        >
+          <div className="text-center mb-12">
+            <motion.h2
+              variants={premiumFadeUp}
+              className={`text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-[var(--fin-text-primary)] ${playfair.className}`}
+            >
+              Foundational & Growth Programs
+            </motion.h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+            {nsePlans.slice(0, 3).map((plan) => (
+              <PremiumCard
+                key={plan.id}
+                id={plan.id}
+                title={plan.title}
+                description={plan.description}
+                badgeLabel={plan.badgeLabel}
+                price={plan.price}
+                priceLabel="Investment"
+                actionUrl={`/contact`}
+                actionLabel="Enroll Now"
+              />
+            ))}
+          </div>
+        </motion.div>
+
+        {/* SECTION 2: Advanced & Elite Programs */}
         <motion.div
           variants={premiumStagger}
           initial="hidden"
@@ -130,8 +165,17 @@ export default function NSEPage() {
           viewport={{ once: true, margin: "-100px" }}
           className="max-w-7xl mx-auto px-6"
         >
+          <div className="text-center mb-12">
+            <motion.h2
+              variants={premiumFadeUp}
+              className={`text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-[var(--fin-text-primary)] ${playfair.className}`}
+            >
+              Advanced & Elite Programs
+            </motion.h2>
+          </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-            {nsePlans.map((plan) => (
+            {nsePlans.slice(3, 6).map((plan) => (
               <PremiumCard
                 key={plan.id}
                 id={plan.id}

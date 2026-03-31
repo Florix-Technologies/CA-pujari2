@@ -80,24 +80,24 @@ const services = [
   }
 ]
 
-const advancedPrograms = [
+const pastSessions = [
   {
-    id: "enterprise",
-    title: "Enterprise",
-    price: "₹500,000",
-    badgeLabel: "Professional / High-Volume Traders",
-    description: "Built for professional traders looking for high-level strategies, capital management, and scaling techniques.",
-    actionLabel: "Get Started",
-    modalType: "booking" as const
+    id: "p1",
+    title: "Introduction to Options Trading",
+    description: "Recorded on: 8 Jan 2026",
+    actionLabel: "Watch Recording"
   },
   {
-    id: "ultimate",
-    title: "Ultimate",
-    price: "₹1,000,000",
-    badgeLabel: "Lifetime / VIP Access",
-    description: "Complete lifetime access with exclusive mentorship, priority support, and elite-level trading insights.",
-    actionLabel: "Contact Us",
-    modalType: "inquiry" as const
+    id: "p2",
+    title: "Market Psychology 101",
+    description: "Recorded on: 28 Dec 2025",
+    actionLabel: "Watch Recording"
+  },
+  {
+    id: "p3",
+    title: "Technical Analysis Deep Dive",
+    description: "Recorded on: 15 Dec 2025",
+    actionLabel: "Watch Recording"
   }
 ]
 
@@ -162,11 +162,11 @@ export default function WebinarsPage() {
               style={{ backgroundColor: 'rgba(247,242,232,0.85)', border: '1px solid rgba(214,204,190,0.4)' }}
             >
               <p className="uppercase tracking-[0.2em] text-[var(--fin-text-secondary)] mb-6 font-semibold text-sm">
-                Book personalized sessions and expert-led webinars to accelerate your trading journey
+                Learn Live. Ask Questions. Grow Faster
               </p>
 
               <h1 className={`text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 text-[var(--fin-text-primary)] ${playfair.className} tracking-tight leading-tight`}>
-                Live Sessions & Consultation Services
+                Live Trading Webinars
               </h1>
 
               <p className="text-xl max-w-2xl mx-auto text-[var(--fin-text-secondary)] leading-relaxed font-medium">
@@ -216,7 +216,7 @@ export default function WebinarsPage() {
           </motion.div>
         </section>
 
-        {/* ADVANCED PROGRAMS SECTION */}
+        {/* PAST SESSIONS SECTION */}
         <section className="py-24 bg-[var(--fin-bg-primary)]/40 relative">
           <motion.div
             variants={premiumStagger}
@@ -230,26 +230,29 @@ export default function WebinarsPage() {
                 variants={premiumFadeUp}
                 className={`text-4xl md:text-5xl font-bold mb-4 text-[var(--fin-text-primary)] ${playfair.className}`}
               >
-                Advanced Programs
+                Past Sessions (Recorded)
               </motion.h2>
               <motion.p variants={premiumFadeUp} className="text-lg text-[var(--fin-text-secondary)] max-w-2xl mx-auto">
-                Exclusive high-volume and lifetime access programs for elite traders.
+                Catch up on what you missed.
               </motion.p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8 md:gap-12 max-w-5xl mx-auto">
-              {advancedPrograms.map((program) => (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+              {pastSessions.map((session) => (
                 <PremiumCard
-                  key={program.id}
-                  id={program.id}
-                  title={program.title}
-                  description={program.description}
-                  badgeLabel={program.badgeLabel}
-                  price={program.price}
-                  priceLabel="Investment"
-                  actionLabel={program.actionLabel}
-                  accentColor="gold"
-                  onClick={() => handleOpenModal(program)}
+                  key={session.id}
+                  id={session.id}
+                  title={session.title}
+                  description={
+                    <span className="font-medium text-sm">
+                      {session.description}
+                    </span>
+                  }
+                  actionLabel={session.actionLabel}
+                  actionUrl="#"
+                  accentColor="silver"
+                  topIcon={<Video size={24} />}
+                  fullWidthButton={true}
                 />
               ))}
             </div>
@@ -294,17 +297,17 @@ export default function WebinarsPage() {
       </main>
 
       {/* Render Modals at the top level */}
-      <BookingModal 
-        isOpen={activeModal.type === 'booking'} 
-        onClose={closeModal} 
-        serviceName={activeModal.title} 
-        price={activeModal.price} 
+      <BookingModal
+        isOpen={activeModal.type === 'booking'}
+        onClose={closeModal}
+        serviceName={activeModal.title}
+        price={activeModal.price}
       />
 
-      <InquiryModal 
-        isOpen={activeModal.type === 'inquiry'} 
-        onClose={closeModal} 
-        serviceName={activeModal.title} 
+      <InquiryModal
+        isOpen={activeModal.type === 'inquiry'}
+        onClose={closeModal}
+        serviceName={activeModal.title}
       />
     </>
   )
