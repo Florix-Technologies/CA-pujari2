@@ -7,23 +7,23 @@ import Link from "next/link"
 
 const IMAGES = [
   {
-    src: "/gallery/Trading.jpeg",
+    src: "/gallery/trading1.jpeg",
     label: "Live Market Charts",
   },
   {
-    src: "/gallery/HOME.jpg.jpeg",
+    src: "/gallery/trading2.jpeg",
     label: "Technical Analysis",
   },
   {
-    src: "/gallery/5b10191e65f2413a2050793ff078cc0d.jpg",
+    src: "/gallery/trading3.jpeg",
     label: "Portfolio Management",
   },
   {
-    src: "/gallery/black accounting background - Google Search.jpg.jpeg",
+    src: "/gallery/webinar.jpeg",
     label: "Risk Management",
   },
   {
-    src: "/gallery/download (2).jpeg",
+    src: "/gallery/community.jpeg",
     label: "Trading Strategy",
   },
 ]
