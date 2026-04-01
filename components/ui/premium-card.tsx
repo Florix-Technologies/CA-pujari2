@@ -84,11 +84,11 @@ export function PremiumCard({
       variants={premiumFadeUp}
       whileHover={{ y: -10, scale: 1.02 }}
       transition={{ duration: 0.5, ease: premiumEasing }}
-      className="group relative flex flex-col rounded-2xl border shadow-sm hover:shadow-[0_30px_60px_-15px_rgba(62,55,48,0.15)] overflow-hidden transition-all duration-500 will-change-transform"
+      className="group relative flex flex-col rounded-2xl overflow-hidden transition-all duration-500 will-change-transform"
       style={{
         backgroundColor: isLight ? '#FFFFFF' : '#1F3A50',
-        borderColor: isLight ? 'var(--fin-border-light)' : '#4FD1FF',
-        borderWidth: '1px'
+        border: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(79,209,255,0.1)',
+        boxShadow: isLight ? '0 8px 24px rgba(0,0,0,0.04)' : '0 8px 24px rgba(79,209,255,0.08)'
       }}
     >
       {/* Subtle internal atmospheric glow on hover */}
@@ -105,21 +105,21 @@ export function PremiumCard({
       <div 
         className="h-2 w-full transition-colors duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
         style={{
-          backgroundColor: isLight ? '#D6CCBE' : '#4FD1FF',
+          backgroundColor: isLight ? '#D1AF62' : '#4FD1FF',
         }}
       />
 
       <div 
-        className="p-8 md:p-10 flex flex-col h-full relative z-10 transition-colors duration-500 group-hover:bg-transparent"
+        className="p-8 md:p-10 flex flex-col relative z-10 transition-colors duration-500"
         style={{
           backgroundColor: isLight ? '#FFFFFF' : '#1F3A50',
-          color: isLight ? 'var(--fin-text-primary)' : '#E0E7FF'
+          color: isLight ? '#2c241f' : '#E0E7FF'
         }}
       >
         
         {/* Top Icon Area */}
         {topIcon && (
-          <div className="w-14 h-14 rounded-full bg-[var(--fin-bg-secondary)] flex items-center justify-center text-[var(--fin-text-secondary)] mb-6 shadow-sm border border-[var(--fin-border-light)]/50">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center mb-6 shadow-sm border" style={{ backgroundColor: isLight ? '#f0ede8' : 'rgba(79,209,255,0.1)', borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(79,209,255,0.2)', color: isLight ? '#D1AF62' : '#4FD1FF' }}>
             {topIcon}
           </div>
         )}
@@ -131,21 +131,26 @@ export function PremiumCard({
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="inline-block px-4 py-1.5 mb-8 text-xs font-bold uppercase tracking-wider
-            rounded-full bg-[var(--fin-bg-secondary)]/50 text-[var(--fin-text-primary)] w-fit border border-[var(--fin-border-light)] shadow-sm"
+            className="inline-block px-4 py-1.5 mb-8 text-xs font-bold uppercase tracking-wider rounded-full w-fit shadow-sm"
+            style={{
+              backgroundColor: isLight ? 'rgba(209, 175, 98, 0.08)' : 'rgba(79, 209, 255, 0.1)',
+              color: isLight ? '#D1AF62' : '#4FD1FF',
+              borderColor: isLight ? 'rgba(209, 175, 98, 0.2)' : 'rgba(79, 209, 255, 0.2)',
+              borderWidth: '1px'
+            }}
           >
             {badgeLabel}
           </motion.span>
         )}
 
         {/* TITLE */}
-        <h3 className={`text-2xl md:text-3xl font-bold mb-4 text-[var(--fin-text-primary)] leading-snug ${playfair.className}`}>
+        <h3 className={`text-2xl md:text-3xl font-bold mb-4 leading-snug ${playfair.className}`} style={{ color: isLight ? '#2c241f' : '#E0E7FF' }}>
           {title}
         </h3>
 
         {/* DESCRIPTION */}
         {description && (
-          <div className="text-[var(--fin-text-secondary)] mb-8 leading-relaxed line-clamp-3 font-medium">
+          <div className="text-[var(--fin-text-secondary)] mb-6 leading-relaxed font-medium" style={{ color: isLight ? '#6b5b4d' : '#C7D2FE' }}>
             {description}
           </div>
         )}
@@ -157,12 +162,13 @@ export function PremiumCard({
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="space-y-4 text-sm text-[var(--fin-text-secondary)] mb-10 font-medium"
+            className="space-y-3 text-sm mb-6 font-medium"
+            style={{ color: isLight ? '#6b5b4d' : '#C7D2FE' }}
           >
             {metaItems.map((meta, i) => (
               <div key={i} className="flex items-center gap-3">
                 <motion.div variants={microPop}>
-                  <div className="text-[var(--fin-accent-gold)]">
+                  <div style={{ color: isLight ? '#D1AF62' : '#4FD1FF' }}>
                     {meta.icon}
                   </div>
                 </motion.div>
@@ -178,12 +184,15 @@ export function PremiumCard({
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className={`mt-auto pt-8 border-t border-[var(--fin-border-light)] transition-colors duration-500 flex ${fullWidthButton ? 'items-center pt-6' : 'items-center justify-between'} ${footerBorderHover}`}
+          className={`mt-auto pt-6 transition-colors duration-500 flex gap-8 ${fullWidthButton ? 'items-center pt-4' : 'items-center justify-between'} ${footerBorderHover}`}
+          style={{
+            borderTop: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(79,209,255,0.1)'
+          }}
         >
           {price !== undefined && !fullWidthButton && (
             <div>
-              <p className="text-xs uppercase tracking-widest text-[var(--fin-text-light)] mb-1 font-semibold">{priceLabel}</p>
-              <motion.p variants={premiumFadeUp} className="text-2xl font-bold text-[var(--fin-text-primary)]">
+              <p className="text-xs uppercase tracking-widest mb-1 font-semibold" style={{ color: isLight ? '#9c8b75' : '#A5B4FC' }}>{priceLabel}</p>
+              <motion.p variants={premiumFadeUp} className="text-2xl font-bold" style={{ color: isLight ? '#2c241f' : '#E0E7FF' }}>
                 {price}
               </motion.p>
             </div>
@@ -191,28 +200,19 @@ export function PremiumCard({
 
           <Link
             href={actionUrl}
-            className={`group/btn px-6 py-3 border rounded-xl font-semibold flex items-center gap-2 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-sm hover:shadow-md hover:-translate-y-1 ${buttonHoverColors} ${fullWidthButton ? 'w-full justify-center' : ''}`}
+            className={`group/btn px-6 py-3 border rounded-xl font-semibold flex items-center gap-2 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:shadow-md hover:-translate-y-1 ml-auto ${fullWidthButton ? 'w-full justify-center' : ''}`}
             style={{
-              backgroundColor: isLight ? '#FFFFFF' : '#0F172A',
-              borderColor: isLight ? 'var(--fin-border-light)' : '#4FD1FF',
-              color: isLight ? '#3E3730' : '#E0E7FF',
+              backgroundColor: isLight ? '#ffffff' : '#0F172A',
+              borderColor: isLight ? '#d4af37' : '#4FD1FF',
+              color: isLight ? (accentColor === "gold" ? '#2c241f' : '#6b5b4d') : '#E0E7FF',
               fontWeight: '600'
-            }}
-            onMouseEnter={(e) => {
-              if (!isLight) {
-                e.currentTarget.style.color = '#FFFFFF'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isLight) {
-                e.currentTarget.style.color = '#E0E7FF'
-              }
             }}
           >
             {actionLabel}
             <ArrowRight
               size={16}
-              className={`transform group-hover/btn:translate-x-1.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/btn:text-white ${iconHoverColor}`}
+              className="transform group-hover/btn:translate-x-1.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+              style={{ color: isLight ? (accentColor === "gold" ? '#d4af37' : '#6b5b4d') : '#4FD1FF' }}
             />
           </Link>
         </motion.div>
