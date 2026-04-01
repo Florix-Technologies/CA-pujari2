@@ -197,6 +197,11 @@
   --circle-diameter: 32px;
   --circle-bg: rgb(0, 56, 146);
   --circle-inset: calc((var(--circle-diameter) - var(--switch-height)) / 2);
+
+  display: inline-flex;
+  align-items: center;
+  padding: var(--circle-inset) 0;
+  cursor: pointer;
 }
 
 .ui-switch input {
@@ -204,7 +209,6 @@
 }
 
 .ui-switch .slider {
-  appearance: none;
   width: var(--switch-width);
   height: var(--switch-height);
   background: var(--switch-bg);
@@ -212,6 +216,8 @@
   position: relative;
   cursor: pointer;
   display: block;
+  overflow: visible;
+  flex-shrink: 0;
 }
 
 .ui-switch .slider .circle {
