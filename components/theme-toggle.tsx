@@ -6,23 +6,19 @@ export function ThemeToggle() {
   const { isLight, toggleTheme } = useTheme()
 
   return (
-    <button
-      onClick={toggleTheme}
+    <label
+      className="ui-switch"
       title={isLight ? "Switch to Dark Mode" : "Switch to Light Mode"}
-      style={{
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        fontSize: "1.15rem",
-        padding: "8px",
-        borderRadius: "50%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        transition: "all 0.3s ease",
-      }}
+      style={{ cursor: "pointer" }}
     >
-      {isLight ? "☀️" : "🌙"}
-    </button>
+      <input
+        type="checkbox"
+        checked={isLight}
+        onChange={toggleTheme}
+      />
+      <div className="slider">
+        <div className="circle" />
+      </div>
+    </label>
   )
 }
