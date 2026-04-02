@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { useTheme } from "@/hooks/useTheme"
@@ -10,6 +11,7 @@ import Image from "next/image"
 import { Playfair_Display } from "next/font/google"
 import { PremiumCard } from "@/components/ui/premium-card"
 import { ChevronDown, ChevronUp, Sparkles, TrendingUp, Shield, Crown } from "lucide-react"
+import { premiumStagger, premiumFadeUp, premiumEasing } from "@/lib/animations"
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
 
@@ -150,6 +152,9 @@ const floatingStats = [
 
 export default function NSEPage() {
   const { isLight } = useTheme()
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [activeCard, setActiveCard] = useState<string | null>(null)
+  const [activeTab] = useState("all")
 
   useEffect(() => {
     const handleScroll = () => {
@@ -159,12 +164,6 @@ export default function NSEPage() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
-
-  const handleToggle = (id: string) => {
-    setActiveCard(prev => (prev === id ? null : id))
-  }
-
-  const filteredPlans = nsePlans.filter(p => p.section === activeTab)
 
   const bg = isLight ? "#F7F2E8" : "#0F172A"
   const cardBg = isLight ? "#FFFFFF" : "#1A2847"
@@ -362,7 +361,6 @@ export default function NSEPage() {
               Foundational & Growth Programs
             </motion.h2>
           </div>
-        </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
             {nsePlans.slice(0, 3).map((plan) => (
@@ -480,8 +478,8 @@ export default function NSEPage() {
                 </div>
               </motion.div>
             ))}
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        </motion.div>
       </section>
 
       {/* CTA */}
