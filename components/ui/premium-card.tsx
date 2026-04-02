@@ -109,9 +109,11 @@ export function PremiumCard({
       transition={{ duration: 0.5, ease: premiumEasing }}
       className="group relative flex flex-col rounded-2xl overflow-hidden transition-all duration-500 will-change-transform"
       style={{
-        backgroundColor: isLight ? '#FFFFFF' : '#1F3A50',
-        border: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(79,209,255,0.1)',
-        boxShadow: isLight ? '0 8px 24px rgba(0,0,0,0.04)' : '0 8px 24px rgba(79,209,255,0.08)'
+        backgroundColor: 'transparent',
+        border: isLight ? '1px solid rgba(209, 175, 98, 0.4)' : '1px solid rgba(79,209,255,0.2)',
+        boxShadow: isLight ? '0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.2)' : '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+        backdropFilter: 'blur(12px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(12px) saturate(180%)'
       }}
     >
       {/* Subtle internal atmospheric glow on hover */}
@@ -135,7 +137,7 @@ export function PremiumCard({
       <div
         className="p-8 md:p-10 flex flex-col relative z-10 transition-colors duration-500"
         style={{
-          backgroundColor: isLight ? '#FFFFFF' : '#1F3A50',
+          backgroundColor: 'transparent',
           color: isLight ? '#2c241f' : '#E0E7FF'
         }}
       >

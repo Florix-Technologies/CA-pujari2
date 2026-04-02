@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { useTheme } from "@/hooks/useTheme"
@@ -10,6 +11,7 @@ import Image from "next/image"
 import { Playfair_Display } from "next/font/google"
 import { PremiumCard } from "@/components/ui/premium-card"
 import { ChevronDown, ChevronUp, Sparkles, TrendingUp, Shield, Crown } from "lucide-react"
+import { premiumStagger, premiumFadeUp, premiumEasing } from "@/lib/animations"
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
 
@@ -150,6 +152,9 @@ const floatingStats = [
 
 export default function NSEPage() {
   const { isLight } = useTheme()
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [activeCard, setActiveCard] = useState<string | null>(null)
+  const [activeTab] = useState("all")
 
   useEffect(() => {
     const handleScroll = () => {
@@ -159,12 +164,6 @@ export default function NSEPage() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
-
-  const handleToggle = (id: string) => {
-    setActiveCard(prev => (prev === id ? null : id))
-  }
-
-  const filteredPlans = nsePlans.filter(p => p.section === activeTab)
 
   const bg = isLight ? "#F7F2E8" : "#0F172A"
   const cardBg = isLight ? "#FFFFFF" : "#1A2847"
@@ -345,7 +344,7 @@ export default function NSEPage() {
       </section>
 
       {/* PLANS GRID */}
-      <section id="plans" className="py-24 relative" style={{ backgroundColor: isLight ? '#FFFFFF' : '#0F172A' }}>
+      <section id="plans" className="py-24 relative border-b border-[var(--fin-border-divider)]" style={{ background: isLight ? 'radial-gradient(circle at 50% 40%, rgba(0,0,0,0.03), transparent 60%), linear-gradient(180deg, #f8f5f0 0%, #efe6da 100%)' : '#0F172A' }}>
         {/* SECTION 1: Foundational & Growth Programs */}
         <motion.div
           variants={premiumStagger}
@@ -362,116 +361,125 @@ export default function NSEPage() {
               Foundational & Growth Programs
             </motion.h2>
           </div>
-        </div>
 
-        {/* CARDS GRID */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.35, ease: "easeInOut" }}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {filteredPlans.map((plan, i) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+            {nsePlans.slice(0, 3).map((plan) => (
               <motion.div
                 key={plan.id}
-                layout
-                initial={{ opacity: 0, y: 30 }}
-                animate={{
-                  opacity: activeCard && activeCard !== plan.id ? 0.5 : 1,
-                  y: 0,
-                  scale: activeCard === plan.id ? 1.02 : 1
-                }}
-                transition={{ duration: 0.3, delay: i * 0.07 }}
-                className="cursor-pointer"
-                onClick={() => handleToggle(plan.id)}
+                whileHover={{ scale: 1.04, y: -12 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="group relative"
               >
-                <PremiumCard
-                  id={plan.id}
-                  title={`${plan.icon}  ${plan.title}`}
-                  description={plan.description}
-                  badgeLabel={plan.badgeLabel}
-                  price={plan.price}
-                  priceLabel="Investment"
-                  actionUrl="/contact"
-                  actionLabel="Enroll Now"
-                />
-
-                {/* EXPANDABLE PANEL */}
-                <AnimatePresence>
-                  {activeCard === plan.id && (
-                    <motion.div
-                      key="expand"
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.35, ease: "easeInOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div
-                        className="mt-3 rounded-2xl p-5 text-sm space-y-4"
-                        style={{ backgroundColor: cardBg, border: `1px solid ${subtle}` }}
-                      >
-                        {/* Who it's for */}
-                        <div>
-                          <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: accent }}>
-                            Who It's For
-                          </p>
-                          <p className="opacity-75">{plan.forWhom}</p>
-                        </div>
-
-                        {/* Features */}
-                        <div>
-                          <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: accent }}>
-                            What's Included
-                          </p>
-                          <ul className="space-y-1.5">
-                            {plan.features.map(f => (
-                              <li key={f} className="flex items-center gap-2 opacity-80">
-                                <span style={{ color: accent }}>✓</span> {f}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        {/* Duration + Sessions */}
-                        <div className="flex gap-4">
-                          <div
-                            className="flex-1 rounded-xl px-3 py-2 text-center"
-                            style={{ backgroundColor: subtle }}
-                          >
-                            <p className="text-xs opacity-60">Duration</p>
-                            <p className="font-bold text-sm">{plan.duration}</p>
-                          </div>
-                          <div
-                            className="flex-1 rounded-xl px-3 py-2 text-center"
-                            style={{ backgroundColor: subtle }}
-                          >
-                            <p className="text-xs opacity-60">Sessions</p>
-                            <p className="font-bold text-sm">{plan.sessions}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Toggle label */}
+                {/* Liquid Glass Wrapper */}
                 <div
-                  className="flex items-center justify-center gap-1 mt-3 text-xs font-semibold"
-                  style={{ color: accent }}
+                  className="relative rounded-2xl border border-[#D4AF37]/40 overflow-hidden transition-all duration-500 group-hover:border-[#D4AF37]/80 group-hover:shadow-[0_20px_60px_rgba(212,175,55,0.15),inset_0_1px_0_rgba(255,255,255,0.3)]"
+                  style={{
+                    background: isLight ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(12px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+                    boxShadow: isLight ? '0 8px 32px 0 rgba(31, 38, 135, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.3)' : '0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                  }}
                 >
-                  {activeCard === plan.id
-                    ? <><ChevronUp size={14} /> Show Less</>
-                    : <><ChevronDown size={14} /> View Details</>
-                  }
+                  {/* Subtle inner glow on hover */}
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{
+                      background: isLight ? 'radial-gradient(ellipse at top-left, rgba(212,175,55,0.1), transparent 60%)' : 'radial-gradient(ellipse at top-left, rgba(79,209,255,0.05), transparent 60%)'
+                    }}
+                  />
+
+                  {/* Light reflection streak */}
+                  <div
+                    className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-50 transition-opacity duration-500"
+                    style={{
+                      background: isLight ? 'linear-gradient(90deg, transparent, #D4AF37, transparent)' : 'linear-gradient(90deg, transparent, #4FD1FF, transparent)'
+                    }}
+                  />
+
+                  <PremiumCard
+                    key={plan.id}
+                    id={plan.id}
+                    title={plan.title}
+                    description={plan.description}
+                    badgeLabel={plan.badgeLabel}
+                    price={plan.price}
+                    priceLabel="Investment"
+                    actionUrl={`/contact`}
+                    actionLabel="Enroll Now"
+                  />
                 </div>
               </motion.div>
             ))}
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        </motion.div>
+
+        {/* SECTION 2: Advanced & Elite Programs */}
+        <motion.div
+          variants={premiumStagger}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="max-w-7xl mx-auto px-6"
+        >
+          <div className="text-center mb-12">
+            <motion.h2
+              variants={premiumFadeUp}
+              className={`text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-[var(--fin-text-primary)] ${playfair.className}`}
+            >
+              Advanced & Elite Programs
+            </motion.h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+            {nsePlans.slice(3, 6).map((plan) => (
+              <motion.div
+                key={plan.id}
+                whileHover={{ scale: 1.04, y: -12 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="group relative"
+              >
+                {/* Liquid Glass Wrapper */}
+                <div
+                  className="relative rounded-2xl border border-[#D4AF37]/40 overflow-hidden transition-all duration-500 group-hover:border-[#D4AF37]/80 group-hover:shadow-[0_20px_60px_rgba(212,175,55,0.15),inset_0_1px_0_rgba(255,255,255,0.3)]"
+                  style={{
+                    background: isLight ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(12px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+                    boxShadow: isLight ? '0 8px 32px 0 rgba(31, 38, 135, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.3)' : '0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                  }}
+                >
+                  {/* Subtle inner glow on hover */}
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{
+                      background: isLight ? 'radial-gradient(ellipse at top-left, rgba(212,175,55,0.1), transparent 60%)' : 'radial-gradient(ellipse at top-left, rgba(79,209,255,0.05), transparent 60%)'
+                    }}
+                  />
+
+                  {/* Light reflection streak */}
+                  <div
+                    className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-50 transition-opacity duration-500"
+                    style={{
+                      background: isLight ? 'linear-gradient(90deg, transparent, #D4AF37, transparent)' : 'linear-gradient(90deg, transparent, #4FD1FF, transparent)'
+                    }}
+                  />
+
+                  <PremiumCard
+                    key={plan.id}
+                    id={plan.id}
+                    title={plan.title}
+                    description={plan.description}
+                    badgeLabel={plan.badgeLabel}
+                    price={plan.price}
+                    priceLabel="Investment"
+                    actionUrl={`/contact`}
+                    actionLabel="Enroll Now"
+                  />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </section>
 
       {/* CTA */}
