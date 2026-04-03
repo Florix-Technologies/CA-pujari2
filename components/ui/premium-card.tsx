@@ -1,6 +1,6 @@
 "use client"
 
-import { motion, useMotionValue, useTransform, useSpring } from "framer-motion"
+import { motion, useMotionValue, useTransform, useSpring, cubicBezier } from "framer-motion"
 import { useTheme } from "@/hooks/useTheme"
 import { Playfair_Display } from "next/font/google"
 import Link from "next/link"
@@ -9,7 +9,7 @@ import { useRef, useState } from "react"
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
 
-const premiumEasing = [0.22, 1, 0.36, 1]
+const premiumEasing = cubicBezier(0.22, 1, 0.36, 1)
 
 const premiumFadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -39,7 +39,8 @@ export function PremiumCard({
   metaItems = [],
   fullWidthButton = false,
   footerBorderHover = "",
-  accentColor = "gold"
+  accentColor = "gold",
+  onClick
 }: any) {
   const { isLight } = useTheme()
   const ref = useRef<HTMLDivElement>(null)
@@ -190,7 +191,7 @@ export function PremiumCard({
             className="space-y-3 text-sm mb-6 font-medium"
             style={{ color: isLight ? '#6b5b4d' : '#C7D2FE' }}
           >
-            {metaItems.map((meta, i) => (
+            {metaItems.map((meta: any, i: number) => (
               <div key={i} className="flex items-center gap-3">
                 <motion.div variants={microPop}>
                   <div style={{ color: isLight ? '#D1AF62' : '#4FD1FF' }}>
@@ -224,23 +225,43 @@ export function PremiumCard({
           )}
 
           {/* CTA BUTTON */}
-          <Link
-            href={actionUrl}
-            className={`group/btn px-6 py-3 border rounded-xl font-semibold flex items-center gap-2 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:shadow-md hover:-translate-y-1 ml-auto ${fullWidthButton ? 'w-full justify-center' : ''}`}
-            style={{
-              backgroundColor: isLight ? '#ffffff' : '#0F172A',
-              borderColor: isLight ? '#d4af37' : '#4FD1FF',
-              color: isLight ? (accentColor === "gold" ? '#2c241f' : '#6b5b4d') : '#E0E7FF',
-              fontWeight: '600'
-            }}
-          >
-            {actionLabel}
-            <ArrowRight
-              size={16}
-              className="transform group-hover/btn:translate-x-1.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
-              style={{ color: isLight ? (accentColor === "gold" ? '#d4af37' : '#6b5b4d') : '#4FD1FF' }}
-            />
-          </Link>
+          {onClick ? (
+            <button
+              onClick={onClick}
+              className={`group/btn px-6 py-3 border rounded-xl font-semibold flex items-center gap-2 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:shadow-md hover:-translate-y-1 ml-auto cursor-pointer ${fullWidthButton ? 'w-full justify-center' : ''}`}
+              style={{
+                backgroundColor: isLight ? '#ffffff' : '#0F172A',
+                borderColor: isLight ? '#d4af37' : '#4FD1FF',
+                color: isLight ? (accentColor === "gold" ? '#2c241f' : '#6b5b4d') : '#E0E7FF',
+                fontWeight: '600'
+              }}
+            >
+              {actionLabel}
+              <ArrowRight
+                size={16}
+                className="transform group-hover/btn:translate-x-1.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                style={{ color: isLight ? (accentColor === "gold" ? '#d4af37' : '#6b5b4d') : '#4FD1FF' }}
+              />
+            </button>
+          ) : (
+            <Link
+              href={actionUrl}
+              className={`group/btn px-6 py-3 border rounded-xl font-semibold flex items-center gap-2 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:shadow-md hover:-translate-y-1 ml-auto ${fullWidthButton ? 'w-full justify-center' : ''}`}
+              style={{
+                backgroundColor: isLight ? '#ffffff' : '#0F172A',
+                borderColor: isLight ? '#d4af37' : '#4FD1FF',
+                color: isLight ? (accentColor === "gold" ? '#2c241f' : '#6b5b4d') : '#E0E7FF',
+                fontWeight: '600'
+              }}
+            >
+              {actionLabel}
+              <ArrowRight
+                size={16}
+                className="transform group-hover/btn:translate-x-1.5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                style={{ color: isLight ? (accentColor === "gold" ? '#d4af37' : '#6b5b4d') : '#4FD1FF' }}
+              />
+            </Link>
+          )}
         </motion.div>
       </div>
     </motion.div>

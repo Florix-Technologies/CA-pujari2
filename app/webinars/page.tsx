@@ -1,9 +1,11 @@
 "use client"
 
 import { useState, ReactNode, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { useTheme } from "@/hooks/useTheme"
+import { useAuth } from "@/context/AuthContext"
 import { motion } from "framer-motion"
 import { Playfair_Display } from "next/font/google"
 import { Calendar, Users, FileText, CheckCircle, Video, CreditCard, Sparkles } from "lucide-react"
@@ -138,11 +140,21 @@ const pastSessions = [
 
 export default function WebinarsPage() {
   const { isLight } = useTheme()
+  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [activeModal, setActiveModal] = useState<ActiveModalProps>({ type: null, id: "", title: "", price: "" })
   const [activeServiceTab, setActiveServiceTab] = useState<string>("webinar")
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   const closeModal = () => setActiveModal({ type: null, id: "", title: "", price: "" })
+
+  const handleProtectedAction = (actionCallback: () => void) => {
+    if (!user && !authLoading) {
+      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname + window.location.hash)}`)
+      return
+    }
+    actionCallback()
+  }
 
   const serviceTabs = [
     { id: "webinar", label: "Webinar" },
@@ -172,11 +184,13 @@ export default function WebinarsPage() {
   }
 
   const handleOpenModal = (service: any) => {
-    setActiveModal({
-      type: service.modalType,
-      id: service.id,
-      title: service.title,
-      price: service.price
+    handleProtectedAction(() => {
+      setActiveModal({
+        type: service.modalType,
+        id: service.id,
+        title: service.title,
+        price: service.price
+      })
     })
   }
 
