@@ -1,9 +1,11 @@
 "use client"
 
 import { useState, ReactNode, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { useTheme } from "@/hooks/useTheme"
+import { useAuth } from "@/context/AuthContext"
 import { motion } from "framer-motion"
 import { Playfair_Display } from "next/font/google"
 import { Calendar, Users, FileText, CheckCircle, Video, CreditCard, Sparkles } from "lucide-react"
@@ -138,11 +140,21 @@ const pastSessions = [
 
 export default function WebinarsPage() {
   const { isLight } = useTheme()
+  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [activeModal, setActiveModal] = useState<ActiveModalProps>({ type: null, id: "", title: "", price: "" })
   const [activeServiceTab, setActiveServiceTab] = useState<string>("webinar")
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   const closeModal = () => setActiveModal({ type: null, id: "", title: "", price: "" })
+
+  const handleProtectedAction = (actionCallback: () => void) => {
+    if (!user && !authLoading) {
+      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname + window.location.hash)}`)
+      return
+    }
+    actionCallback()
+  }
 
   const serviceTabs = [
     { id: "webinar", label: "Webinar" },
@@ -150,16 +162,6 @@ export default function WebinarsPage() {
     { id: "business-consultation", label: "Business" },
     { id: "custom-module", label: "Premium Package" }
   ]
-
-  const handleScroll = (direction: 'left' | 'right') => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = 350
-      scrollContainerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      })
-    }
-  }
 
   const handleObjClick = (tabId: string) => {
     setActiveServiceTab(tabId)
@@ -172,11 +174,13 @@ export default function WebinarsPage() {
   }
 
   const handleOpenModal = (service: any) => {
-    setActiveModal({
-      type: service.modalType,
-      id: service.id,
-      title: service.title,
-      price: service.price
+    handleProtectedAction(() => {
+      setActiveModal({
+        type: service.modalType,
+        id: service.id,
+        title: service.title,
+        price: service.price
+      })
     })
   }
 
@@ -423,24 +427,8 @@ export default function WebinarsPage() {
               ))}
             </motion.div>
 
-            {/* Horizontal Scrollable Services with Navigation Buttons */}
+            {/* Horizontal Scrollable Services */}
             <div className="relative">
-              {/* Left Scroll Button */}
-              <button
-                onClick={() => handleScroll('left')}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full transition-all duration-300"
-                style={{
-                  background: isLight ? 'linear-gradient(135deg, #d4af37, #c69c2d)' : 'linear-gradient(135deg, #4FD1FF, #3B82F6)',
-                  boxShadow: isLight ? '0 4px 12px rgba(0,0,0,0.15)' : '0 4px 12px rgba(79,209,255,0.3)',
-                  transform: 'translateY(-50%)',
-                  color: '#ffffff'
-                }}
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-
               {/* Scrollable Container */}
               <div
                 ref={scrollContainerRef}
@@ -483,22 +471,6 @@ export default function WebinarsPage() {
                   ))}
                 </motion.div>
               </div>
-
-              {/* Right Scroll Button */}
-              <button
-                onClick={() => handleScroll('right')}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full transition-all duration-300"
-                style={{
-                  background: isLight ? 'linear-gradient(135deg, #d4af37, #c69c2d)' : 'linear-gradient(135deg, #4FD1FF, #3B82F6)',
-                  boxShadow: isLight ? '0 4px 12px rgba(0,0,0,0.15)' : '0 4px 12px rgba(79,209,255,0.3)',
-                  transform: 'translateY(-50%)',
-                  color: '#ffffff'
-                }}
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
             </div>
           </motion.div>
         </section>

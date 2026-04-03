@@ -1,9 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { useTheme } from "@/hooks/useTheme"
+import { useAuth } from "@/context/AuthContext"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import Image from "next/image"
@@ -152,9 +154,19 @@ const floatingStats = [
 
 export default function NSEPage() {
   const { isLight } = useTheme()
+  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [scrollProgress, setScrollProgress] = useState(0)
   const [activeCard, setActiveCard] = useState<string | null>(null)
   const [activeTab] = useState("all")
+
+  const handleProtectedAction = (redirectPath: string) => {
+    if (!user && !authLoading) {
+      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname + window.location.hash)}`)
+      return
+    }
+    router.push(redirectPath)
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -404,8 +416,8 @@ export default function NSEPage() {
                     badgeLabel={plan.badgeLabel}
                     price={plan.price}
                     priceLabel="Investment"
-                    actionUrl={`/contact`}
                     actionLabel="Enroll Now"
+                    onClick={() => handleProtectedAction("/contact")}
                   />
                 </div>
               </motion.div>
@@ -472,8 +484,8 @@ export default function NSEPage() {
                     badgeLabel={plan.badgeLabel}
                     price={plan.price}
                     priceLabel="Investment"
-                    actionUrl={`/contact`}
                     actionLabel="Enroll Now"
+                    onClick={() => handleProtectedAction("/contact")}
                   />
                 </div>
               </motion.div>
@@ -501,16 +513,16 @@ export default function NSEPage() {
           <p className="opacity-60 mb-8">
             Talk to us and we'll guide you to the right program based on your goals and experience.
           </p>
-          <motion.a
-            href="/contact"
+          <motion.button
+            onClick={() => handleProtectedAction("/contact")}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm cursor-pointer border-none"
             style={{ backgroundColor: accent, color: isLight ? "#fff" : "#0F172A" }}
           >
             <Shield size={16} />
             Contact Us for Guidance
-          </motion.a>
+          </motion.button>
         </motion.div>
       </section>
 
