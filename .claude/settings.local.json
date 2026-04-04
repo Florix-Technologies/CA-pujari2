@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(nul)",
+      "Bash(cmd /c copy \"c:\\Users\\RAKSHITH\\Downloads\\Untitled design.mp4\" \"public\\loading\\intro.mp4\")",
+      "Bash(powershell -Command \"Copy-Item ''c:\\Users\\RAKSHITH\\Downloads\\Untitled design.mp4'' ''public\\loading\\intro.mp4''\")"
     ]
   }
 }

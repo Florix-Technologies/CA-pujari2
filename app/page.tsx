@@ -9,6 +9,7 @@ import { Star, Users, TrendingUp } from "lucide-react"
 import { motion, useScroll, useTransform, useMotionValueEvent, useSpring } from "framer-motion"
 import { fadeUp, stagger } from "@/lib/animations"
 import { BentoGallery } from "@/components/blocks/bento-gallery"
+import { EnhancedLoadingScreen } from "@/components/loading/enhanced-loading-screen"
 
 const FRAME_COUNT = 100
 
@@ -16,6 +17,21 @@ export default function Home() {
   const words = ["Learn", "Practice", "Trade"]
   const [index, setIndex] = useState(0)
   const { isLight } = useTheme()
+
+  // Loading state - Only show loading once per session
+  const [isLoading, setIsLoading] = useState(true)
+  const [showContent, setShowContent] = useState(false)
+
+  // Check session storage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasLoaded = sessionStorage.getItem('hasLoadedOnce')
+      if (hasLoaded) {
+        setIsLoading(false)
+        setShowContent(true)
+      }
+    }
+  }, [])
 
   // Scroll sequence state
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -32,11 +48,11 @@ export default function Home() {
     offset: ["start start", "end end"]
   })
 
-  // Smooth out mouse wheel jerky scroll steps
+  // Smooth out mouse wheel jerky scroll steps - ENHANCED FOR SMOOTHER EXPERIENCE
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 100, // Balanced stiffness for smoother response
-    damping: 30,    // Optimized damping to reduce "wiggle" and improve speed
-    restDelta: 0.001
+    stiffness: 80,    // Reduced for even smoother motion
+    damping: 25,      // Reduced for more fluid transitions
+    restDelta: 0.0005 // More precise settling
   })
 
   const darkFrameCount = 89
@@ -60,62 +76,101 @@ export default function Home() {
       setIndex((prev) => (prev + 1) % words.length)
     }, 1800)
 
-    // 2. Preload images
-    const loadImages = (isDarkMode: boolean) => {
+    // 2. Optimized image preloading - load current theme first, then other theme
+    const loadImages = (isDarkMode: boolean, priority: 'high' | 'low' = 'high') => {
       const frames = isDarkMode ? 89 : 90
       const loadedImages: HTMLImageElement[] = []
       let loadedCount = 0
 
-      console.log(`[Hero] Starting preload for ${isDarkMode ? 'DARK' : 'LIGHT'} sequence (${frames} frames)...`)
+      console.log(`[Hero] Starting ${priority} priority preload for ${isDarkMode ? 'DARK' : 'LIGHT'} sequence (${frames} frames)...`)
 
-      for (let i = 1; i <= frames; i++) {
-        const img = new Image()
-        
-        if (isDarkMode) {
-          // home_Dark frames are 013 to 101
-          const darkPadded = (i + 12).toString().padStart(3, '0')
-          img.src = `/home_Dark/Recording_2026-04-02_024054_${darkPadded}.png`
-        } else {
-          // home_Light frames are 016 to 105 (timestamp 235740)
-          const lightPadded = (i + 15).toString().padStart(3, '0')
-          img.src = `/home_Light/Recording_2026-04-02_235740_${lightPadded}.png`
-        }
-        
-        img.onload = () => {
-          if (img.decode) {
-             img.decode().catch(() => {})
+      // Batch loading with requestIdleCallback for better performance
+      const loadBatch = (startIndex: number, batchSize: number) => {
+        const endIndex = Math.min(startIndex + batchSize, frames)
+
+        for (let i = startIndex; i < endIndex; i++) {
+          const img = new Image()
+
+          if (isDarkMode) {
+            const darkPadded = (i + 13).toString().padStart(3, '0')
+            img.src = `/home_Dark/Recording_2026-04-02_024054_${darkPadded}.png`
+          } else {
+            const lightPadded = (i + 16).toString().padStart(3, '0')
+            img.src = `/home_Light/Recording_2026-04-02_235740_${lightPadded}.png`
           }
-          loadedCount++
-          if (loadedCount === frames) {
-            console.log(`[Hero] Finished preloading ${isDarkMode ? 'DARK' : 'LIGHT'} sequence.`)
-            if (isDarkMode) {
-              darkImagesRef.current = loadedImages
-              setIsDarkLoaded(true)
+
+          // Enable faster loading
+          img.loading = 'eager'
+          img.decoding = 'async'
+
+          img.onload = () => {
+            loadedCount++
+
+            // Draw first frame immediately when ready
+            if (loadedCount === 1 && canvasRef.current) {
+              const currentIsLight = !document.documentElement.classList.contains('dark')
+              if (isDarkMode !== currentIsLight) {
+                canvasRef.current.width = img.width
+                canvasRef.current.height = img.height
+                const ctx = canvasRef.current.getContext('2d', { alpha: false })
+                if (ctx) {
+                  ctx.imageSmoothingEnabled = true
+                  ctx.imageSmoothingQuality = 'high'
+                  ctx.drawImage(img, 0, 0)
+                  setCanvasOpacity(1)
+                }
+              }
+            }
+
+            if (loadedCount === frames) {
+              console.log(`[Hero] ✓ Finished preloading ${isDarkMode ? 'DARK' : 'LIGHT'} sequence.`)
+              if (isDarkMode) {
+                darkImagesRef.current = loadedImages
+                setIsDarkLoaded(true)
+              } else {
+                lightImagesRef.current = loadedImages
+                setIsLightLoaded(true)
+              }
+              setCanvasOpacity(1)
+            }
+          }
+
+          img.onerror = () => {
+            console.warn(`[Hero] Failed to load frame ${i}`)
+            loadedCount++
+          }
+
+          loadedImages[i] = img
+        }
+
+        // Load next batch
+        if (endIndex < frames) {
+          if (priority === 'high') {
+            // High priority - load immediately
+            setTimeout(() => loadBatch(endIndex, batchSize), 0)
+          } else {
+            // Low priority - use idle callback
+            if (typeof requestIdleCallback !== 'undefined') {
+              requestIdleCallback(() => loadBatch(endIndex, batchSize))
             } else {
-              lightImagesRef.current = loadedImages
-              setIsLightLoaded(true)
-            }
-            // Trigger canvas fade-in
-            setCanvasOpacity(1)
-            
-            // Draw initial frame if this matches current theme
-            // Fixed logic: if current mode matches the theme of these images
-            const currentIsLight = document.documentElement.classList.contains('light') || !document.documentElement.classList.contains('dark')
-            if (canvasRef.current && loadedImages[0] && (isDarkMode !== currentIsLight)) {
-              console.log(`[Hero] Drawing initial frame for ${isDarkMode ? 'DARK' : 'LIGHT'} mode.`)
-              canvasRef.current.width = loadedImages[0].width
-              canvasRef.current.height = loadedImages[0].height
-              const ctx = canvasRef.current.getContext('2d')
-              if (ctx) ctx.drawImage(loadedImages[0], 0, 0)
+              setTimeout(() => loadBatch(endIndex, batchSize), 100)
             }
           }
         }
-        loadedImages.push(img)
       }
+
+      // Start loading in batches of 10 frames
+      loadBatch(0, 10)
     }
-    
-    loadImages(false) // Load light
-    loadImages(true)  // Load dark
+
+    // Load current theme first with high priority
+    const currentIsLight = !document.documentElement.classList.contains('dark')
+    loadImages(!currentIsLight, 'high')
+
+    // Load other theme with low priority after a delay
+    setTimeout(() => {
+      loadImages(currentIsLight, 'low')
+    }, 1000)
 
     return () => clearInterval(interval)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -149,31 +204,73 @@ export default function Home() {
     }
   }, [isLight, isLightLoaded, isDarkLoaded])
 
+  // Optimized canvas rendering with RAF
+  const renderFrameRef = useRef<number | null>(null)
+  const lastFrameRef = useRef<number>(-1)
+
   useMotionValueEvent(currentIndex, "change", (latest) => {
     const imagesLoaded = isLight ? isLightLoaded : isDarkLoaded
     if (!imagesLoaded || !canvasRef.current) return
-    
+
     const activeImages = isLight ? lightImagesRef.current : darkImagesRef.current
     if (activeImages.length === 0) return
 
     const frameNumber = Math.min(activeImages.length - 1, Math.max(0, Math.floor(latest) - 1))
+
+    // Skip if same frame
+    if (frameNumber === lastFrameRef.current) return
+    lastFrameRef.current = frameNumber
+
     const img = activeImages[frameNumber]
-    
-    if (img) {
-      const ctx = canvasRef.current.getContext('2d')
-      if (ctx) {
-        ctx.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height)
+
+    if (img && img.complete) {
+      // Cancel previous RAF if exists
+      if (renderFrameRef.current !== null) {
+        cancelAnimationFrame(renderFrameRef.current)
       }
+
+      // Use RAF for smooth rendering
+      renderFrameRef.current = requestAnimationFrame(() => {
+        if (!canvasRef.current) return
+        const ctx = canvasRef.current.getContext('2d', { alpha: false, desynchronized: true })
+        if (ctx) {
+          ctx.imageSmoothingEnabled = true
+          ctx.imageSmoothingQuality = 'high'
+          ctx.drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height)
+        }
+        renderFrameRef.current = null
+      })
     }
   })
 
+  const handleLoadingComplete = () => {
+    // Mark as loaded in sessionStorage (will persist for the session only)
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('hasLoadedOnce', 'true')
+    }
+    setIsLoading(false)
+    // Add a small delay for smooth transition
+    setTimeout(() => {
+      setShowContent(true)
+    }, 100)
+  }
+
   return (
     <>
-      <Navigation />
+      {/* Enhanced Loading Screen with Video */}
+      {isLoading && <EnhancedLoadingScreen isLight={isLight} onComplete={handleLoadingComplete} />}
+
+      {/* Main Content - Only show after loading */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: showContent ? 1 : 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <Navigation />
 
       {/* HERO — SEQUENCE ANIMATION */}
-      <section ref={heroRef} className={`relative h-[350vh] ${isLight ? "bg-[#F7F2E8]" : "bg-[#0F172A]"}`}>
-        <div className="sticky top-0 h-[100svh] overflow-hidden flex items-center justify-center">
+      <section ref={heroRef} className={`relative h-[350vh] ${isLight ? "bg-[#F7F2E8]" : "bg-[#0F172A]"} theme-transition`}>
+        <div className="sticky top-0 h-[100svh] overflow-hidden flex items-center justify-center smooth-transform">
 
           {/* Shimmer Placeholder — visible while images load */}
           {!isLightLoaded && !isDarkLoaded && (
@@ -192,13 +289,14 @@ export default function Home() {
           {/* Canvas — fades in when loaded */}
           <canvas
             ref={canvasRef}
-            className="absolute inset-0 w-full h-full"
+            className="absolute inset-0 w-full h-full smooth-transform"
             style={{
-              willChange: "transform",
+              willChange: "transform, opacity",
               objectFit: "cover",
               objectPosition: "center",
               opacity: canvasOpacity,
-              transition: "opacity 0.8s ease",
+              transition: "opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
+              imageRendering: "crisp-edges",
             }}
           />
 
@@ -476,7 +574,8 @@ export default function Home() {
         </motion.div>
       </section>
 
-      <Footer />
+        <Footer />
+      </motion.div>
     </>
   )
 }
