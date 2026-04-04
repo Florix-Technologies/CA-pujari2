@@ -215,8 +215,8 @@ export function PremiumCard({
             borderTop: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(79,209,255,0.1)'
           }}
         >
-          {price !== undefined && !fullWidthButton && (
-            <div>
+          {price !== undefined && (
+            <div className={fullWidthButton ? "mb-6 pb-6 border-b border-[var(--fin-border-divider)] w-full" : ""}>
               <p className="text-xs uppercase tracking-widest mb-1 font-semibold" style={{ color: isLight ? '#9c8b75' : '#A5B4FC' }}>{priceLabel}</p>
               <motion.p variants={premiumFadeUp} className="text-2xl font-bold" style={{ color: isLight ? '#2c241f' : '#E0E7FF' }}>
                 {price}
