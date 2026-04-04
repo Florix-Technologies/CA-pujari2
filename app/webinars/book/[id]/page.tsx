@@ -58,11 +58,43 @@ export default function WebinarBookingPage() {
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault()
+    const formData = new FormData(e.target as HTMLFormElement)
+    const name = formData.get("name") as string
+    const email = formData.get("email") as string
+    const phone = formData.get("phone") as string
+
     setIsSubmitting(true)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    setIsSubmitting(false)
-    setIsSuccess(true)
+
+    try {
+      const res = await fetch("/api/webinars/book", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          webinar_title: effectiveWebinar.title,
+          webinar_date: effectiveWebinar.date,
+          webinar_time: effectiveWebinar.time,
+          amount: "₹2,500", // Standard investment as seen on the main page
+          duration: "40 minutes",
+        }),
+      })
+
+      if (res.ok) {
+        setIsSuccess(true)
+      } else {
+        const error = await res.json()
+        alert(error.error || "Something went wrong. Please try again.")
+      }
+    } catch (err) {
+      console.error("Booking error:", err)
+      alert("Failed to connect to the server.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (loading) {
@@ -154,6 +186,7 @@ export default function WebinarBookingPage() {
                       <label className="text-sm font-bold mb-2 block text-[#645E56]">Full Name</label>
                       <input 
                         type="text" 
+                        name="name"
                         required 
                         placeholder="John Doe"
                         className="w-full px-5 py-4 rounded-xl border border-[var(--fin-border-divider)] focus:outline-none focus:ring-4 focus:ring-[var(--fin-accent-gold)]/10 focus:border-[var(--fin-accent-gold)] transition-all"
@@ -163,6 +196,7 @@ export default function WebinarBookingPage() {
                       <label className="text-sm font-bold mb-2 block text-[#645E56]">Email Address</label>
                       <input 
                         type="email" 
+                        name="email"
                         required 
                         placeholder="john@example.com"
                         className="w-full px-5 py-4 rounded-xl border border-[var(--fin-border-divider)] focus:outline-none focus:ring-4 focus:ring-[var(--fin-accent-gold)]/10 focus:border-[var(--fin-accent-gold)] transition-all"
@@ -172,6 +206,7 @@ export default function WebinarBookingPage() {
                       <label className="text-sm font-bold mb-2 block text-[#645E56]">Phone Number (Optional)</label>
                       <input 
                         type="tel" 
+                        name="phone"
                         placeholder="+91 00000 00000"
                         className="w-full px-5 py-4 rounded-xl border border-[var(--fin-border-divider)] focus:outline-none focus:ring-4 focus:ring-[var(--fin-accent-gold)]/10 focus:border-[var(--fin-accent-gold)] transition-all"
                       />

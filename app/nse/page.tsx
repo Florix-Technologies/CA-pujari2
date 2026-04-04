@@ -12,6 +12,7 @@ import Image from "next/image"
 
 import { Playfair_Display } from "next/font/google"
 import { PremiumCard } from "@/components/ui/premium-card"
+import { BookingModal } from "@/components/ui/service-modals"
 import { ChevronDown, ChevronUp, Sparkles, TrendingUp, Shield, Crown } from "lucide-react"
 import { premiumStagger, premiumFadeUp, premiumEasing } from "@/lib/animations"
 
@@ -159,6 +160,17 @@ export default function NSEPage() {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [activeCard, setActiveCard] = useState<string | null>(null)
   const [activeTab] = useState("all")
+  const [activeModal, setActiveModal] = useState<{
+    isOpen: boolean
+    title: string
+    price: string
+    section: string
+  }>({
+    isOpen: false,
+    title: "",
+    price: "",
+    section: ""
+  })
 
   const handleProtectedAction = (redirectPath: string) => {
     if (!user && !authLoading) {
@@ -166,6 +178,23 @@ export default function NSEPage() {
       return
     }
     router.push(redirectPath)
+  }
+
+  const handleEnrollClick = (plan: any) => {
+    if (!user && !authLoading) {
+      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname + window.location.hash)}`)
+      return
+    }
+    setActiveModal({
+      isOpen: true,
+      title: plan.title,
+      price: plan.price,
+      section: plan.section
+    })
+  }
+
+  const closeModal = () => {
+    setActiveModal({ ...activeModal, isOpen: false })
   }
 
   useEffect(() => {
@@ -417,7 +446,7 @@ export default function NSEPage() {
                     price={plan.price}
                     priceLabel="Investment"
                     actionLabel="Enroll Now"
-                    onClick={() => handleProtectedAction("/contact")}
+                    onClick={() => handleEnrollClick(plan)}
                   />
                 </div>
               </motion.div>
@@ -485,7 +514,7 @@ export default function NSEPage() {
                     price={plan.price}
                     priceLabel="Investment"
                     actionLabel="Enroll Now"
-                    onClick={() => handleProtectedAction("/contact")}
+                    onClick={() => handleEnrollClick(plan)}
                   />
                 </div>
               </motion.div>
@@ -527,6 +556,15 @@ export default function NSEPage() {
       </section>
 
       <Footer />
+
+      <BookingModal 
+        isOpen={activeModal.isOpen}
+        onClose={closeModal}
+        serviceName={activeModal.title}
+        price={activeModal.price}
+        section={activeModal.section}
+        apiEndpoint="/api/nse/book"
+      />
     </main>
   )
 }

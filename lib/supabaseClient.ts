@@ -21,8 +21,9 @@ export const supabase: SupabaseClient = createClient(
  */
 export function createServerSupabase(): SupabaseClient {
   const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || supabaseUrl
   if (!serviceRole) throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY in environment')
-  return createClient(supabaseUrl, serviceRole, { auth: { persistSession: false } })
+  return createClient(url, serviceRole, { auth: { persistSession: false } })
 }
 
 export default supabase
