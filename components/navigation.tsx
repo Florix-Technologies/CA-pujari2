@@ -191,9 +191,10 @@ export function Navigation() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="md:hidden overflow-hidden w-full absolute top-full left-0 mt-3 bg-[#F7F2E8]/95 dark:bg-[#0f0f0f]/95 backdrop-blur-xl border border-[#A38970]/30 dark:border-white/10 shadow-2xl rounded-3xl"
+              className="md:hidden overflow-hidden w-full absolute top-full left-0 mt-3 bg-[#F7F2E8] dark:bg-[#0f0f0f] backdrop-blur-xl border border-[#A38970]/30 dark:border-white/10 shadow-2xl rounded-3xl z-50"
+              style={{ maxHeight: '80vh', overflowY: 'auto' }}
             >
-              <div className="px-5 py-6 flex flex-col gap-2">
+              <div className="px-6 py-6 flex flex-col gap-2 relative z-10">
                 {navItems.map((item) => {
                   const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/")
                   return (
@@ -203,14 +204,17 @@ export function Navigation() {
                         router.push(item.href)
                         setIsOpen(false)
                       }}
-                      className={`flex items-center px-5 py-4 rounded-2xl text-[15px] font-semibold transition-all ${isActive ? "bg-[#D1AF62]/10 dark:bg-blue-600/10 text-[#D1AF62] dark:text-blue-500 shadow-sm" : "text-[#3E3730] dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5"
+                      className={`flex items-center justify-start px-6 py-4 rounded-2xl text-base font-bold transition-all relative z-10 ${
+                        isActive
+                          ? "bg-[#D1AF62] dark:bg-blue-600 text-white shadow-lg"
+                          : "text-[#3E3730] dark:text-gray-200 hover:bg-white/80 dark:hover:bg-white/10 hover:shadow-md bg-white/40 dark:bg-white/5"
                         }`}
                     >
                       {item.label}
                     </button>
                   )
                 })}
-                <div className="h-px w-full bg-[#A38970]/30 my-4" />
+                <div className="h-px w-full bg-[#A38970]/40 dark:bg-white/10 my-4" />
                 <div className="flex justify-center pb-2">
                   <AuthArea />
                 </div>

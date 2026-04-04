@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, ReactNode, useRef } from "react"
+import { useState, ReactNode, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
@@ -29,13 +29,14 @@ const ctaButton = ({ href, label, icon, isLight }: { href: string; label: string
     href={href}
     whileHover={{ scale: 1.03 }}
     whileTap={{ scale: 0.98 }}
+    transition={{ type: "spring", stiffness: 400, damping: 25 }}
     onHoverStart={(e) => {
       (e.currentTarget as HTMLElement).style.filter = 'brightness(1.08)';
     }}
     onHoverEnd={(e) => {
       (e.currentTarget as HTMLElement).style.filter = 'brightness(1)';
     }}
-    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full font-bold text-base md:text-lg transition-all duration-300 cursor-pointer"
+    className="inline-flex items-center justify-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-full font-bold text-xs sm:text-sm md:text-base lg:text-lg transition-all duration-300 cursor-pointer whitespace-nowrap smooth-transform"
     style={buttonStyle}
   >
     {icon}
@@ -145,6 +146,17 @@ export default function WebinarsPage() {
   const [activeModal, setActiveModal] = useState<ActiveModalProps>({ type: null, id: "", title: "", price: "" })
   const [activeServiceTab, setActiveServiceTab] = useState<string>("webinar")
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    // Check if mobile on client side
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const closeModal = () => setActiveModal({ type: null, id: "", title: "", price: "" })
 
@@ -200,7 +212,7 @@ export default function WebinarsPage() {
           '--fin-border-light': isLight ? '#A38970' : '#4FD1FF',
           '--fin-border-divider': isLight ? '#D6CCBE' : '#334155'
         } as React.CSSProperties}
-        className={`${isLight ? 'bg-white text-[var(--fin-text-primary)]' : 'bg-[#0F172A] text-[#E0E7FF]'} min-h-screen transition-colors duration-500 font-sans`}
+        className={`${isLight ? 'bg-white text-[var(--fin-text-primary)]' : 'bg-[#0F172A] text-[#E0E7FF]'} min-h-screen theme-transition font-sans`}
       >
         <Navigation />
 
@@ -396,7 +408,7 @@ export default function WebinarsPage() {
             {/* Service Filter Tabs */}
             <motion.div
               variants={premiumFadeUp}
-              className="flex justify-center mb-12"
+              className="flex flex-wrap justify-center mb-12 gap-2 sm:gap-0 px-4"
             >
               {serviceTabs.map((tab, index) => (
                 <motion.button
@@ -404,20 +416,20 @@ export default function WebinarsPage() {
                   onClick={() => handleObjClick(tab.id)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-6 py-2.5 font-semibold text-sm md:text-base transition-all duration-300"
+                  className="px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 font-semibold text-xs sm:text-sm md:text-base transition-all duration-300 whitespace-nowrap"
                   style={{
-                    background: activeServiceTab === tab.id 
+                    background: activeServiceTab === tab.id
                       ? isLight ? 'linear-gradient(135deg, #d4af37, #c69c2d)' : 'linear-gradient(135deg, #4FD1FF, #3B82F6)'
                       : isLight ? '#f1e8dc' : '#334155',
                     color: activeServiceTab === tab.id
                       ? '#ffffff'
                       : isLight ? '#6b5b4d' : '#CBD5E1',
-                    border: `2px solid ${activeServiceTab === tab.id 
+                    border: `2px solid ${activeServiceTab === tab.id
                       ? isLight ? '#d4af37' : '#4FD1FF'
                       : isLight ? '#e5d9c8' : '#475569'}`,
-                    borderRadius: index === 0 ? '50px 0 0 50px' : index === serviceTabs.length - 1 ? '0 50px 50px 0' : '0',
-                    marginLeft: index > 0 ? '-2px' : '0',
-                    boxShadow: activeServiceTab === tab.id 
+                    borderRadius: isMobile ? '50px' : index === 0 ? '50px 0 0 50px' : index === serviceTabs.length - 1 ? '0 50px 50px 0' : '0',
+                    marginLeft: isMobile ? '0' : index > 0 ? '-2px' : '0',
+                    boxShadow: activeServiceTab === tab.id
                       ? isLight ? '0 4px 12px rgba(212, 175, 55, 0.3)' : '0 4px 12px rgba(79, 209, 255, 0.3)'
                       : 'none'
                   }}
@@ -432,11 +444,11 @@ export default function WebinarsPage() {
               {/* Scrollable Container */}
               <div
                 ref={scrollContainerRef}
-                className="overflow-x-auto scrollbar-hide"
+                className="overflow-x-auto scrollbar-hide -mx-4 px-4"
                 style={{ scrollBehavior: 'smooth' }}
               >
                 <motion.div
-                  className="flex gap-6 pb-4 px-16 items-start"
+                  className="flex gap-4 sm:gap-6 pb-4 px-2 sm:px-4 md:px-8 lg:px-16 items-start"
                   variants={premiumStagger}
                   initial="hidden"
                   animate="visible"
@@ -448,8 +460,12 @@ export default function WebinarsPage() {
                       onClick={() => handleObjClick(service.id)}
                       className="flex-shrink-0 cursor-pointer transition-all duration-300"
                       style={{
-                        width: activeServiceTab === service.id ? '900px' : '350px',
-                        minWidth: activeServiceTab === service.id ? '900px' : '350px',
+                        width: activeServiceTab === service.id
+                          ? 'min(90vw, 900px)'
+                          : 'min(80vw, 350px)',
+                        minWidth: activeServiceTab === service.id
+                          ? 'min(90vw, 900px)'
+                          : 'min(80vw, 350px)',
                         border: activeServiceTab === service.id ? `3px solid ${isLight ? '#D1AF62' : '#4FD1FF'}` : 'none',
                         borderRadius: '16px',
                         boxShadow: activeServiceTab === service.id ? isLight ? '0 0 20px rgba(209, 175, 98, 0.4)' : '0 0 20px rgba(79, 209, 255, 0.4)' : 'none'

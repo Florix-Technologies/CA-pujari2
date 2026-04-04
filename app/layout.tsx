@@ -46,6 +46,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Preload critical assets for faster loading */}
+        <link rel="preload" href="/faviconSP.png" as="image" />
+      </head>
       <body className="font-sans antialiased">
         {/* 🔐 AUTH PROVIDER SHOULD BE OUTERMOST */}
         <AuthProvider>
