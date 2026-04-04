@@ -23,7 +23,7 @@ const modalVariants = {
     opacity: 1, 
     y: 0, 
     scale: 1,
-    transition: { type: "spring", damping: 25, stiffness: 300 }
+    transition: { type: "spring" as const, damping: 25, stiffness: 300 }
   },
   exit: { opacity: 0, scale: 0.95, y: 20 }
 }
@@ -259,7 +259,7 @@ export function BookingModal({
                   <motion.div 
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ type: "spring", bounce: 0.5 }}
+                    transition={{ type: "spring" as const, bounce: 0.5 }}
                     className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6"
                   >
                     <CheckCircle2 size={40} />
@@ -467,7 +467,7 @@ export function InquiryModal({ isOpen, onClose, serviceName, isPremium }: Omit<M
                   <motion.div 
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ type: "spring", bounce: 0.5 }}
+                    transition={{ type: "spring" as const, bounce: 0.5 }}
                     className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6"
                   >
                     <CheckCircle2 size={40} />
