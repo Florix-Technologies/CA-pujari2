@@ -113,8 +113,8 @@ export function PremiumCard({
         backgroundColor: 'transparent',
         border: isLight ? '1px solid rgba(209, 175, 98, 0.4)' : '1px solid rgba(79,209,255,0.2)',
         boxShadow: isLight ? '0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.2)' : '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
-        backdropFilter: 'blur(12px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(12px) saturate(180%)'
+        backdropFilter: isHovered ? 'blur(8px)' : 'blur(4px)',
+        WebkitBackdropFilter: isHovered ? 'blur(8px)' : 'blur(4px)'
       }}
     >
       {/* Subtle internal atmospheric glow on hover */}

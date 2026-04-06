@@ -59,7 +59,7 @@ export function BookingModal({
     setError(null)
     setIsProcessing(true)
     try {
-      const response = await fetch('/api/webinars/book', {
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -71,8 +71,8 @@ export function BookingModal({
           webinar_date: date,
           webinar_time: time,
           amount: price?.replace(/[^0-9.]/g, '') || "0",
-          duration: "4 Sessions", // Default for NSE foundational
-          section: section // Pass category (foundational vs advanced)
+          duration: "4 Sessions",
+          section: section
         })
       })
 

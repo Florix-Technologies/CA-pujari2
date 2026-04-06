@@ -13,145 +13,11 @@ import Image from "next/image"
 import { Playfair_Display } from "next/font/google"
 import { PremiumCard } from "@/components/ui/premium-card"
 import { BookingModal } from "@/components/ui/service-modals"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ChevronDown, ChevronUp, Sparkles, TrendingUp, Shield, Crown } from "lucide-react"
 import { premiumStagger, premiumFadeUp, premiumEasing } from "@/lib/animations"
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
-
-const nsePlans = [
-  {
-    id: "basic",
-    title: "Basic",
-    price: "₹5,000",
-    badgeLabel: "Starter / Entry-Level Access",
-    section: "foundational",
-    icon: "📈",
-    description: "Ideal for beginners who want to understand the fundamentals of stock market trading and build a strong foundation.",
-    details: "Learn basics of stock market, risk management, and how to start trading with confidence.",
-    features: [
-      "Stock market fundamentals",
-      "Demat & trading account setup",
-      "Basic chart reading",
-      "Risk awareness module",
-      "Beginner trading checklist"
-    ],
-    forWhom: "Perfect for absolute beginners with zero trading experience.",
-    duration: "4 Weeks",
-    sessions: "8 Sessions"
-  },
-  {
-    id: "standard",
-    title: "Standard",
-    price: "₹10,000",
-    badgeLabel: "Core / Essential Tools & Guidance",
-    section: "foundational",
-    icon: "📊",
-    description: "Covers essential trading strategies, tools, and practical insights to help you start trading with confidence.",
-    details: "Includes technical analysis, tools, and structured approach for consistent trading.",
-    features: [
-      "Technical analysis basics",
-      "Candlestick patterns",
-      "Support & resistance levels",
-      "Volume analysis",
-      "Live market observation"
-    ],
-    forWhom: "For those who know basics and want structured strategy.",
-    duration: "6 Weeks",
-    sessions: "12 Sessions"
-  },
-  {
-    id: "pro",
-    title: "Pro",
-    price: "₹50,000",
-    badgeLabel: "Advanced / In-depth Strategies",
-    section: "foundational",
-    icon: "🔥",
-    description: "Designed for serious learners who want advanced strategies, deeper market understanding, and real-world applications.",
-    details: "Advanced price action, psychology, and real-world execution strategies.",
-    features: [
-      "Advanced price action",
-      "Options & derivatives intro",
-      "Trading psychology",
-      "Live trade analysis",
-      "Personal feedback sessions"
-    ],
-    forWhom: "For intermediate traders ready to go professional.",
-    duration: "8 Weeks",
-    sessions: "20 Sessions"
-  },
-  {
-    id: "premium",
-    title: "Premium",
-    price: "₹1,10,000",
-    badgeLabel: "✨ Most Popular • Elite Mentorship",
-    section: "advanced",
-    icon: "⭐",
-    description: "Includes personalized mentorship, live sessions, and direct guidance to accelerate your trading journey.",
-    details: "Direct mentorship, live trading, and priority support.",
-    features: [
-      "1-on-1 mentorship sessions",
-      "Live trading with Shobha Pujari",
-      "Custom trading plan",
-      "Priority WhatsApp support",
-      "Monthly portfolio review"
-    ],
-    forWhom: "For serious traders who want personalized expert guidance.",
-    duration: "3 Months",
-    sessions: "Unlimited"
-  },
-  {
-    id: "enterprise",
-    title: "Enterprise",
-    price: "₹5,00,000",
-    badgeLabel: "Professional / High-Volume Traders",
-    section: "advanced",
-    icon: "🏛️",
-    description: "Built for professional traders looking for high-level strategies, capital management, and scaling techniques.",
-    details: "Portfolio scaling, capital allocation, and advanced risk systems.",
-    features: [
-      "Institutional-level strategies",
-      "Capital management system",
-      "Advanced risk frameworks",
-      "Algo trading introduction",
-      "Dedicated support manager"
-    ],
-    forWhom: "For HNIs and professional traders managing large capital.",
-    duration: "6 Months",
-    sessions: "Unlimited + Priority"
-  },
-  {
-    id: "ultimate",
-    title: "Ultimate",
-    price: "₹10,00,000",
-    badgeLabel: "👑 Lifetime / VIP Access",
-    section: "advanced",
-    icon: "💎",
-    description: "Complete lifetime access with exclusive mentorship, priority support, and elite-level trading insights.",
-    details: "All features unlocked + lifetime mentorship + VIP access.",
-    features: [
-      "Lifetime platform access",
-      "All future programs included",
-      "VIP community access",
-      "Direct CA-level consultation",
-      "Business & tax advisory"
-    ],
-    forWhom: "For those who want everything — forever.",
-    duration: "Lifetime",
-    sessions: "Unlimited Lifetime"
-  }
-]
-
-const tabs = [
-  { id: "foundational", label: "Foundational & Growth", icon: <TrendingUp size={16} /> },
-  { id: "advanced", label: "Advanced & Elite", icon: <Crown size={16} /> }
-]
-
-const floatingStats = [
-  { label: "Students Trained", value: "2,000+" },
-  { label: "Success Rate", value: "94%" },
-  { label: "Years Experience", value: "10+" },
-  { label: "Live Sessions", value: "500+" }
-]
 
 export default function NSEPage() {
   const { isLight } = useTheme()
@@ -159,7 +25,11 @@ export default function NSEPage() {
   const router = useRouter()
   const [scrollProgress, setScrollProgress] = useState(0)
   const [activeCard, setActiveCard] = useState<string | null>(null)
-  const [activeTab] = useState("all")
+  
+  // Dynamic Content States
+  const [nsePlans, setNsePlans] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
   const [activeModal, setActiveModal] = useState<{
     isOpen: boolean
     title: string
@@ -171,6 +41,21 @@ export default function NSEPage() {
     price: "",
     section: ""
   })
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch('/api/nse')
+        const data = await res.json()
+        setNsePlans(Array.isArray(data) ? data : (data.data || []))
+      } catch (err) {
+        console.error("Failed to fetch NSE plans", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
 
   const handleProtectedAction = (redirectPath: string) => {
     if (!user && !authLoading) {
@@ -189,7 +74,7 @@ export default function NSEPage() {
       isOpen: true,
       title: plan.title,
       price: plan.price,
-      section: plan.section
+      section: plan.section || plan.category || 'foundational'
     })
   }
 
@@ -236,6 +121,7 @@ export default function NSEPage() {
           muted
           loop
           playsInline
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
         />
 
@@ -334,14 +220,8 @@ export default function NSEPage() {
                       >
                         <motion.a
                           href="#plans"
-                          whileHover={{ scale: 1.03 }}
+                          whileHover={{ scale: 1.03, filter: 'brightness(1.08)' }}
                           whileTap={{ scale: 0.98 }}
-                          onHoverStart={(e) => {
-                            (e.currentTarget as HTMLElement).style.filter = 'brightness(1.08)';
-                          }}
-                          onHoverEnd={(e) => {
-                            (e.currentTarget as HTMLElement).style.filter = 'brightness(1)';
-                          }}
                           className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full font-bold text-base md:text-lg transition-all duration-300 cursor-pointer"
                           style={{
                             background: isLight ? 'linear-gradient(135deg, #d4af37, #c69c2d)' : 'linear-gradient(135deg, #4FD1FF, #3B82F6)',
@@ -355,14 +235,8 @@ export default function NSEPage() {
                         </motion.a>
                         <motion.a
                           href="#contact"
-                          whileHover={{ scale: 1.03 }}
+                          whileHover={{ scale: 1.03, filter: 'brightness(1.08)' }}
                           whileTap={{ scale: 0.98 }}
-                          onHoverStart={(e) => {
-                            (e.currentTarget as HTMLElement).style.filter = 'brightness(1.08)';
-                          }}
-                          onHoverEnd={(e) => {
-                            (e.currentTarget as HTMLElement).style.filter = 'brightness(1)';
-                          }}
                           className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full font-bold text-base md:text-lg transition-all duration-300 cursor-pointer"
                           style={{
                             background: isLight ? 'linear-gradient(135deg, #d4af37, #c69c2d)' : 'linear-gradient(135deg, #4FD1FF, #3B82F6)',
@@ -404,53 +278,61 @@ export default function NSEPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-            {nsePlans.slice(0, 3).map((plan) => (
-              <motion.div
-                key={plan.id}
-                whileHover={{ scale: 1.04, y: -12 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="group relative"
-              >
-                {/* Liquid Glass Wrapper */}
-                <div
-                  className="relative rounded-2xl border border-[#D4AF37]/40 overflow-hidden transition-all duration-500 group-hover:border-[#D4AF37]/80 group-hover:shadow-[0_20px_60px_rgba(212,175,55,0.15),inset_0_1px_0_rgba(255,255,255,0.3)]"
-                  style={{
-                    background: isLight ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(12px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(12px) saturate(180%)',
-                    boxShadow: isLight ? '0 8px 32px 0 rgba(31, 38, 135, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.3)' : '0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                  }}
-                >
-                  {/* Subtle inner glow on hover */}
-                  <div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                    style={{
-                      background: isLight ? 'radial-gradient(ellipse at top-left, rgba(212,175,55,0.1), transparent 60%)' : 'radial-gradient(ellipse at top-left, rgba(79,209,255,0.05), transparent 60%)'
-                    }}
-                  />
-
-                  {/* Light reflection streak */}
-                  <div
-                    className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-50 transition-opacity duration-500"
-                    style={{
-                      background: isLight ? 'linear-gradient(90deg, transparent, #D4AF37, transparent)' : 'linear-gradient(90deg, transparent, #4FD1FF, transparent)'
-                    }}
-                  />
-
-                  <PremiumCard
-                    key={plan.id}
-                    id={plan.id}
-                    title={plan.title}
-                    description={plan.description}
-                    badgeLabel={plan.badgeLabel}
-                    price={plan.price}
-                    priceLabel="Investment"
-                    actionLabel="Enroll Now"
-                    onClick={() => handleEnrollClick(plan)}
-                  />
+            {loading ? (
+              Array(3).fill(0).map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="h-[400px] w-full rounded-2xl" />
                 </div>
-              </motion.div>
-            ))}
+              ))
+            ) : (
+              nsePlans.slice(0, 3).map((plan) => (
+                <motion.div
+                  key={plan.id}
+                  whileHover={{ scale: 1.04, y: -12 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="group relative"
+                >
+                  {/* Liquid Glass Wrapper */}
+                  <div
+                    className="relative rounded-2xl border border-[#D4AF37]/40 overflow-hidden transition-all duration-500 group-hover:border-[#D4AF37]/80 group-hover:shadow-[0_20px_60px_rgba(212,175,55,0.15),inset_0_1px_0_rgba(255,255,255,0.3)]"
+                    style={{
+                      background: isLight ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.05)',
+                      backdropFilter: 'blur(12px) saturate(180%)',
+                      WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+                      boxShadow: isLight ? '0 8px 32px 0 rgba(31, 38, 135, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.3)' : '0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                    }}
+                  >
+                    {/* Subtle inner glow on hover */}
+                    <div
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{
+                        background: isLight ? 'radial-gradient(ellipse at top-left, rgba(212,175,55,0.1), transparent 60%)' : 'radial-gradient(ellipse at top-left, rgba(79,209,255,0.05), transparent 60%)'
+                      }}
+                    />
+  
+                    {/* Light reflection streak */}
+                    <div
+                      className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-50 transition-opacity duration-500"
+                      style={{
+                        background: isLight ? 'linear-gradient(90deg, transparent, #D4AF37, transparent)' : 'linear-gradient(90deg, transparent, #4FD1FF, transparent)'
+                      }}
+                    />
+  
+                    <PremiumCard
+                      key={plan.id}
+                      id={plan.id}
+                      title={plan.title}
+                      description={plan.description}
+                      badgeLabel={plan.badgeLabel}
+                      price={plan.price}
+                      priceLabel="Investment"
+                      actionLabel="Enroll Now"
+                      onClick={() => handleEnrollClick(plan)}
+                    />
+                  </div>
+                </motion.div>
+              ))
+            )}
           </div>
         </motion.div>
 
@@ -472,53 +354,61 @@ export default function NSEPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-            {nsePlans.slice(3, 6).map((plan) => (
-              <motion.div
-                key={plan.id}
-                whileHover={{ scale: 1.04, y: -12 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="group relative"
-              >
-                {/* Liquid Glass Wrapper */}
-                <div
-                  className="relative rounded-2xl border border-[#D4AF37]/40 overflow-hidden transition-all duration-500 group-hover:border-[#D4AF37]/80 group-hover:shadow-[0_20px_60px_rgba(212,175,55,0.15),inset_0_1px_0_rgba(255,255,255,0.3)]"
-                  style={{
-                    background: isLight ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(12px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(12px) saturate(180%)',
-                    boxShadow: isLight ? '0 8px 32px 0 rgba(31, 38, 135, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.3)' : '0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                  }}
-                >
-                  {/* Subtle inner glow on hover */}
-                  <div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                    style={{
-                      background: isLight ? 'radial-gradient(ellipse at top-left, rgba(212,175,55,0.1), transparent 60%)' : 'radial-gradient(ellipse at top-left, rgba(79,209,255,0.05), transparent 60%)'
-                    }}
-                  />
-
-                  {/* Light reflection streak */}
-                  <div
-                    className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-50 transition-opacity duration-500"
-                    style={{
-                      background: isLight ? 'linear-gradient(90deg, transparent, #D4AF37, transparent)' : 'linear-gradient(90deg, transparent, #4FD1FF, transparent)'
-                    }}
-                  />
-
-                  <PremiumCard
-                    key={plan.id}
-                    id={plan.id}
-                    title={plan.title}
-                    description={plan.description}
-                    badgeLabel={plan.badgeLabel}
-                    price={plan.price}
-                    priceLabel="Investment"
-                    actionLabel="Enroll Now"
-                    onClick={() => handleEnrollClick(plan)}
-                  />
+            {loading ? (
+              Array(3).fill(0).map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="h-[400px] w-full rounded-2xl" />
                 </div>
-              </motion.div>
-            ))}
+              ))
+            ) : (
+              nsePlans.slice(3, 6).map((plan) => (
+                <motion.div
+                  key={plan.id}
+                  whileHover={{ scale: 1.04, y: -12 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="group relative"
+                >
+                  {/* Liquid Glass Wrapper */}
+                  <div
+                    className="relative rounded-2xl border border-[#D4AF37]/40 overflow-hidden transition-all duration-500 group-hover:border-[#D4AF37]/80 group-hover:shadow-[0_20px_60px_rgba(212,175,55,0.15),inset_0_1px_0_rgba(255,255,255,0.3)]"
+                    style={{
+                      background: isLight ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.05)',
+                      backdropFilter: 'blur(12px) saturate(180%)',
+                      WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+                      boxShadow: isLight ? '0 8px 32px 0 rgba(31, 38, 135, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.3)' : '0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                    }}
+                  >
+                    {/* Subtle inner glow on hover */}
+                    <div
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{
+                        background: isLight ? 'radial-gradient(ellipse at top-left, rgba(212,175,55,0.1), transparent 60%)' : 'radial-gradient(ellipse at top-left, rgba(79,209,255,0.05), transparent 60%)'
+                      }}
+                    />
+  
+                    {/* Light reflection streak */}
+                    <div
+                      className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-50 transition-opacity duration-500"
+                      style={{
+                        background: isLight ? 'linear-gradient(90deg, transparent, #D4AF37, transparent)' : 'linear-gradient(90deg, transparent, #4FD1FF, transparent)'
+                      }}
+                    />
+  
+                    <PremiumCard
+                      key={plan.id}
+                      id={plan.id}
+                      title={plan.title}
+                      description={plan.description}
+                      badgeLabel={plan.badgeLabel}
+                      price={plan.price}
+                      priceLabel="Investment"
+                      actionLabel="Enroll Now"
+                      onClick={() => handleEnrollClick(plan)}
+                    />
+                  </div>
+                </motion.div>
+              ))
+            )}
           </div>
         </motion.div>
       </section>

@@ -18,15 +18,36 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Auth user not found yet' }, { status: 404 })
     }
 
-    const { error: insertError } = await supabaseAdmin
+    // Check if profile exists to avoid overwriting roles (like admin -> student)
+    const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
-      .upsert({ id: user.id, email, full_name, role: 'student' }, { onConflict: 'id' })
+      .select('id, role')
+      .eq('id', user.id)
+      .single()
 
-    if (insertError) {
-      return NextResponse.json({ error: insertError.message }, { status: 500 })
+    if (!existingProfile) {
+      const { error: insertError } = await supabaseAdmin
+        .from('profiles')
+        .insert({ id: user.id, email, full_name, role: 'student' })
+
+      if (insertError) {
+        return NextResponse.json({ error: insertError.message }, { status: 500 })
+      }
+    } else {
+      // Profile exists, just update email or full_name if needed (don't touch role)
+      const { error: updateError } = await supabaseAdmin
+        .from('profiles')
+        .update({ email, full_name })
+        .eq('id', user.id)
+
+      if (updateError) {
+        return NextResponse.json({ error: updateError.message }, { status: 500 })
+      }
     }
 
-    return NextResponse.json({ ok: true })
+    // Return the role so the login page can redirect immediately
+    const finalRole = existingProfile?.role || 'student'
+    return NextResponse.json({ ok: true, role: finalRole })
   } catch (err: any) {
     return NextResponse.json({ error: err.message ?? String(err) }, { status: 500 })
   }

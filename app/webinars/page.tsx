@@ -12,6 +12,7 @@ import { Calendar, Users, FileText, CheckCircle, Video, CreditCard, Sparkles } f
 import { premiumFadeUp, premiumStagger } from "@/lib/animations"
 import { PremiumCard } from "@/components/ui/premium-card"
 import { BookingModal, InquiryModal } from "@/components/ui/service-modals"
+import { Skeleton } from "@/components/ui/skeleton"
 import Image from "next/image"
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
@@ -60,120 +61,6 @@ type ActiveModalProps = {
   isPremium?: boolean
 }
 
-const coreServices = [
-  {
-    id: "webinar",
-    title: "Live Webinar Session by SHOBHA PUJARI",
-    price: "₹2,500",
-    badgeLabel: "Webinar",
-    description: "Join a live interactive session where real market strategies, analysis, and trading concepts are explained clearly.",
-    metaItems: [
-      { icon: <Calendar size={16} />, label: "View upcoming schedules" },
-      { icon: <CheckCircle size={16} />, label: "Select preferred date" },
-      { icon: <Video size={16} />, label: "40 minutes duration" },
-    ],
-    actionLabel: "Book Webinar",
-    modalType: "booking" as const
-  },
-  {
-    id: "personal-consultation",
-    title: "One-on-One Consultation",
-    price: "₹5,000",
-    badgeLabel: "Personal",
-    description: "Get personalized guidance tailored to your trading goals, mistakes, and growth strategy.",
-    metaItems: [
-      { icon: <Users size={16} />, label: "Book private session" },
-      { icon: <FileText size={16} />, label: "Personalized discussion" },
-      { icon: <Video size={16} />, label: "45–60 minutes duration" },
-    ],
-    actionLabel: "Book Consultation",
-    modalType: "booking" as const
-  },
-  {
-    id: "business-consultation",
-    title: "In-depth Business Consultation",
-    price: "₹10,000",
-    badgeLabel: "Business",
-    description: "Designed for individuals or businesses looking for deeper strategic insights and structured trading systems.",
-    metaItems: [
-      { icon: <FileText size={16} />, label: "Advanced consultation" },
-      { icon: <CheckCircle size={16} />, label: "Strategy-focused discussion" },
-      { icon: <Video size={16} />, label: "60-90 minutes duration" },
-    ],
-    actionLabel: "Book Session",
-    modalType: "booking" as const
-  }
-]
-
-const premiumPackages = [
-  {
-    id: "custom-module",
-    title: "Custom Business Module / Strategy Package",
-    price: "₹100,000",
-    badgeLabel: "Custom Strategy",
-    description: "A high-value customized trading and business strategy package tailored for serious professionals and companies.",
-    metaItems: [
-      { icon: <CheckCircle size={16} />, label: "Custom strategy development" },
-      { icon: <Users size={16} />, label: "Personalized mentorship" },
-      { icon: <FileText size={16} />, label: "Milestone & Invoice based" },
-    ],
-    actionLabel: "Contact for Details",
-    modalType: "inquiry" as const,
-    isPremium: true
-  },
-  {
-    id: "enterprise",
-    title: "Enterprise Strategy",
-    price: "₹500,000",
-    badgeLabel: "Enterprise",
-    description: "Designed for Professional / High-Volume Traders seeking institutional-grade market frameworks.",
-    metaItems: [
-      { icon: <CheckCircle size={16} />, label: "Full Enterprise framework" },
-      { icon: <Users size={16} />, label: "Team-wide access" },
-      { icon: <Sparkles size={16} />, label: "Direct Payment Gate" },
-    ],
-    actionLabel: "Book Enterprise",
-    modalType: "booking" as const,
-    isPremium: true
-  },
-  {
-    id: "ultimate",
-    title: "Ultimate VIP Access",
-    price: "₹1,000,000",
-    badgeLabel: "Lifetime / VIP",
-    description: "The peak of mentorship — Lifetime / VIP Access (₹10,00,000) with unfiltered strategic insights.",
-    metaItems: [
-      { icon: <CheckCircle size={16} />, label: "Lifetime course access" },
-      { icon: <Users size={16} />, label: "Direct personal line" },
-      { icon: <Sparkles size={16} />, label: "Direct Payment Gate" },
-    ],
-    actionLabel: "Request VIP Access",
-    modalType: "booking" as const,
-    isPremium: true
-  }
-]
-
-const pastSessions = [
-  {
-    id: "p1",
-    title: "Introduction to Options Trading",
-    description: "Recorded on: 8 Jan 2026",
-    actionLabel: "Watch Recording"
-  },
-  {
-    id: "p2",
-    title: "Market Psychology 101",
-    description: "Recorded on: 28 Dec 2025",
-    actionLabel: "Watch Recording"
-  },
-  {
-    id: "p3",
-    title: "Technical Analysis Deep Dive",
-    description: "Recorded on: 15 Dec 2025",
-    actionLabel: "Watch Recording"
-  }
-]
-
 export default function WebinarsPage() {
   const { isLight } = useTheme()
   const { user, loading: authLoading } = useAuth()
@@ -183,8 +70,59 @@ export default function WebinarsPage() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [isMobile, setIsMobile] = useState(false)
 
+  // Dynamic Content States
+  const [coreServices, setCoreServices] = useState<any[]>([])
+  const [premiumPackages, setPremiumPackages] = useState<any[]>([])
+  const [pastSessions, setPastSessions] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
   useEffect(() => {
-    // Check if mobile on client side
+    async function fetchData() {
+      try {
+        const res = await fetch('/api/webinars')
+        const data = await res.json()
+        
+        // Categorize based on DB 'service_category'
+        // webinars: webinar, consultation
+        // premium: premium
+        
+        const allServices = Array.isArray(data) ? data : (data.data || [])
+        
+        const core = allServices.filter((s: any) => s.service_category === 'webinar' || s.service_category === 'consultation').map((s: any) => ({
+          ...s,
+          badgeLabel: s.service_category === 'webinar' ? "Webinar" : "Personal",
+          actionLabel: s.service_category === 'webinar' ? "Book Webinar" : "Book Consultation",
+          modalType: "booking"
+        }))
+
+        const premium = allServices.filter((s: any) => s.service_category === 'premium').map((s: any) => ({
+          ...s,
+          badgeLabel: "Premium",
+          actionLabel: s.price === '₹1,00,000' ? "Contact for Details" : "Book Package",
+          modalType: s.price === '₹1,00,000' ? "inquiry" : "booking",
+          isPremium: true
+        }))
+
+        // Mock past sessions for now or fetch if needed
+        const past = [
+          { id: "p1", title: "Introduction to Options Trading", description: "Recorded on: 8 Jan 2026", actionLabel: "Watch Recording" },
+          { id: "p2", title: "Market Psychology 101", description: "Recorded on: 28 Dec 2025", actionLabel: "Watch Recording" },
+          { id: "p3", title: "Technical Analysis Deep Dive", description: "Recorded on: 15 Dec 2025", actionLabel: "Watch Recording" }
+        ]
+
+        setCoreServices(core)
+        setPremiumPackages(premium)
+        setPastSessions(past)
+      } catch (err) {
+        console.error("Failed to fetch webinars", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
+  useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640)
     }
@@ -274,6 +212,7 @@ export default function WebinarsPage() {
             muted
             loop
             playsInline
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
           />
 
@@ -401,6 +340,8 @@ export default function WebinarsPage() {
                     alt="Trading Professional"
                     fill
                     className="object-contain"
+                    priority
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 430px"
                   />
                 </div>
               </motion.div>
@@ -423,6 +364,8 @@ export default function WebinarsPage() {
                     alt="Market Candlesticks"
                     fill
                     className="object-contain"
+                    priority
+                    sizes="(max-width: 768px) 50vw, 200px"
                     style={{
                       filter: 'blur(0.3px)'
                     }}
@@ -468,30 +411,36 @@ export default function WebinarsPage() {
                   initial="hidden"
                   animate="visible"
                 >
-                  {coreServices.map((service) => (
-                    <motion.div
-                      key={service.id}
-                      id={`service-card-${service.id}`}
-                      className="flex-shrink-0 cursor-pointer transition-all duration-300"
-                      style={{
-                        width: '350px',
-                        minWidth: '350px'
-                      }}
-                      whileHover={{ scale: 1.02, y: -5 }}
-                    >
-                      <PremiumCard
-                        id={service.id}
-                        title={service.title}
-                        description={service.description}
-                        badgeLabel={service.badgeLabel}
-                        metaItems={service.metaItems}
-                        price={service.price}
-                        priceLabel="Price per session"
-                        actionLabel={service.actionLabel}
-                        onClick={() => handleOpenModal(service)}
-                      />
-                    </motion.div>
-                  ))}
+                  {loading ? (
+                    Array(3).fill(0).map((_, i) => (
+                      <Skeleton key={i} className="h-[400px] w-[350px] flex-shrink-0 rounded-2xl" />
+                    ))
+                  ) : (
+                    coreServices.map((service) => (
+                      <motion.div
+                        key={service.id}
+                        id={`service-card-${service.id}`}
+                        className="flex-shrink-0 cursor-pointer transition-all duration-300"
+                        style={{
+                          width: '350px',
+                          minWidth: '350px'
+                        }}
+                        whileHover={{ scale: 1.02, y: -5 }}
+                      >
+                        <PremiumCard
+                          id={service.id}
+                          title={service.title}
+                          description={service.description}
+                          badgeLabel={service.badgeLabel}
+                          metaItems={service.metaItems}
+                          price={service.price}
+                          priceLabel="Price per session"
+                          actionLabel={service.actionLabel}
+                          onClick={() => handleOpenModal(service)}
+                        />
+                      </motion.div>
+                    ))
+                  )}
                 </motion.div>
               </div>
             </div>
@@ -527,38 +476,44 @@ export default function WebinarsPage() {
 
             {/* Stacked 3-Column Grid for Premium */}
             <div className="grid md:grid-cols-3 gap-8">
-              {premiumPackages.map((service) => (
-                <motion.div
-                  key={service.id}
-                  variants={premiumFadeUp}
-                  className="flex flex-col"
-                  whileHover={{ y: -12 }}
-                >
-                  <PremiumCard
-                    id={service.id}
-                    title={service.title}
-                    description={service.description}
-                    badgeLabel={service.badgeLabel}
-                    metaItems={service.metaItems}
-                    price={service.price}
-                    priceLabel="Investment"
-                    accentColor={service.id === 'ultimate' ? 'gold' : 'silver'}
-                    actionLabel={service.actionLabel}
-                    fullWidthButton={true}
-                    onClick={() => handleOpenModal(service)}
-                  />
-                  
-                  {/* Milestones Info for Custom Module */}
-                  {service.id === 'custom-module' && (
-                    <button 
-                      onClick={() => handleQuickPurchase(service)}
-                      className="mt-4 text-center text-sm font-bold text-[var(--fin-accent-gold)] hover:underline cursor-pointer"
-                    >
-                      Ready for Direct Purchase? Pay ₹100,000 Here
-                    </button>
-                  )}
-                </motion.div>
-              ))}
+              {loading ? (
+                Array(3).fill(0).map((_, i) => (
+                  <Skeleton key={i} className="h-[500px] w-full rounded-2xl" />
+                ))
+              ) : (
+                premiumPackages.map((service) => (
+                  <motion.div
+                    key={service.id}
+                    variants={premiumFadeUp}
+                    className="flex flex-col"
+                    whileHover={{ y: -12 }}
+                  >
+                    <PremiumCard
+                      id={service.id}
+                      title={service.title}
+                      description={service.description}
+                      badgeLabel={service.badgeLabel}
+                      metaItems={service.metaItems}
+                      price={service.price}
+                      priceLabel="Investment"
+                      accentColor={service.id === 'ultimate' ? 'gold' : 'silver'}
+                      actionLabel={service.actionLabel}
+                      fullWidthButton={true}
+                      onClick={() => handleOpenModal(service)}
+                    />
+                    
+                    {/* Milestones Info for Custom Module */}
+                    {service.id === 'custom-module' && (
+                      <button 
+                        onClick={() => handleQuickPurchase(service)}
+                        className="mt-4 text-center text-sm font-bold text-[var(--fin-accent-gold)] hover:underline cursor-pointer"
+                      >
+                        Ready for Direct Purchase? Pay ₹100,000 Here
+                      </button>
+                    )}
+                  </motion.div>
+                ))
+              )}
             </div>
           </motion.div>
         </section>
@@ -624,7 +579,14 @@ export default function WebinarsPage() {
               {paymentMethods.map((method, idx) => (
                 <motion.div key={idx} variants={premiumFadeUp} className="rounded-2xl border border-[var(--fin-border-divider)] py-6 flex items-center justify-center shadow-sm hover:shadow-md hover:border-[var(--fin-accent-gold)] transition-all duration-300" style={{ backgroundColor: '#FFFFFF' }}>
                   {method.isImage ? (
-                    <Image src={method.src!} alt={method.alt} width={method.width} height={method.height} />
+                    <Image 
+                      src={method.src!} 
+                      alt={method.alt} 
+                      width={method.width} 
+                      height={method.height} 
+                      sizes="100px"
+                      loading="lazy"
+                    />
                   ) : (
                     <div className="flex flex-col gap-2 items-center justify-center text-[#3E3730]">
                       <CreditCard size={40} className="text-[var(--fin-accent-gold)]" />

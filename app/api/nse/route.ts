@@ -4,7 +4,7 @@ import { createServerSupabase } from '@/lib/supabaseClient'
 export async function GET() {
   const supabase = createServerSupabase()
   const { data, error } = await supabase
-    .from('webinars')
+    .from('nse_programs')
     .select('*')
     .order('created_at', { ascending: false })
 

@@ -21,12 +21,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true
 
     // get initial session
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return
-      setSession(data.session ?? null)
-      setUser(data.session?.user ?? null)
-      setLoading(false)
-    })
+    const getInitialSession = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession()
+        if (error) {
+          if (error.message.includes('Refresh Token Not Found')) {
+            // Silencing noisy common dev error
+            console.warn('Supabase session refresh failed: Refresh Token Not Found. This is normal if the session expired.')
+          } else {
+            console.error('Session error:', error.message)
+          }
+        }
+        if (mounted) {
+          setSession(data.session ?? null)
+          setUser(data.session?.user ?? null)
+        }
+      } catch (err) {
+        console.error('Unexpected auth error:', err)
+      } finally {
+        if (mounted) setLoading(false)
+      }
+    }
+
+    getInitialSession()
 
     // subscribe to changes
     const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {

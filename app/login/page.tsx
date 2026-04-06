@@ -28,13 +28,28 @@ export default function LoginPage() {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
+
+      // Ensure profile exists and get the role
+      let userRole = 'student'
       try {
-        await fetch("/api/create-profile", {
+        const profileRes = await fetch("/api/create-profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: data.user?.email ?? email, full_name: null }),
         })
-      } catch {}
+        if (profileRes.ok) {
+          const profileData = await profileRes.json()
+          userRole = profileData.role || 'student'
+        }
+      } catch (err) {
+        console.error("Profile check failed", err)
+      }
+
+      if (userRole === "admin") {
+        router.push("/admin")
+        return
+      }
+
       const params = new URLSearchParams(window.location.search)
       let redirect = params.get("redirect") || "/"
       if (redirect.startsWith("/courses")) redirect = "/courses"

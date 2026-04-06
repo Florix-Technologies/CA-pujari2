@@ -17,25 +17,9 @@ export const metadata: Metadata = {
     "Learn trading basics for beginners with India's trusted Chartered Accountant and trading educator",
   generator: "v0.app",
   icons: {
-    icon: [
-      {
-        url: "/faviconSP.png",
-      },
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
+    icon: "/faviconSP.png",
     shortcut: "/faviconSP.png",
-    apple: "/apple-icon.png",
+    apple: "/faviconSP.png",
   },
 }
 
@@ -49,16 +33,14 @@ export default function RootLayout({
       <head>
         {/* Preload critical assets for faster loading */}
         <link rel="preload" href="/faviconSP.png" as="image" />
+        {/* Preload hero images for NSE and Webinars */}
+        <link rel="preload" href="/womentrading.png" as="image" />
+        <link rel="preload" href="/women%20trading.png" as="image" />
       </head>
       <body className="font-sans antialiased">
         {/* 🔐 AUTH PROVIDER SHOULD BE OUTERMOST */}
         <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
+          <ThemeProvider>
             <PageTransition>
               {children}
             </PageTransition>
