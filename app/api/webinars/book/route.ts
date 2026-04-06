@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createServerSupabase } from '@/lib/supabaseClient'
 import { Resend } from 'resend'
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@cashobha.in'
+const ADMIN_EMAILS = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',') : ['admin@cashobha.in']
 
 export async function POST(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY || '')
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
               <strong>Note:</strong> You will receive the session joining link on this email exactly one hour before the webinar starts.
             </p>
             
-            <p>If you have any questions, feel free to reach out to us at <a href="mailto:${ADMIN_EMAIL}" style="color: #D1AF62;">${ADMIN_EMAIL}</a>.</p>
+            <p>If you have any questions, feel free to reach out to us at <a href="mailto:${ADMIN_EMAILS[0]}" style="color: #D1AF62;">${ADMIN_EMAILS[0]}</a>.</p>
             
             <p style="margin-top: 40px;">Best regards,<br><strong>Shobha Pujari Team</strong></p>
           </div>
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
       // Email 2: Admin Notification
       await resend.emails.send({
         from: 'Booking System <info@cashobha.in>',
-        to: ADMIN_EMAIL,
+        to: ADMIN_EMAILS,
         subject: `New Webinar Booking: ${name}`,
         html: `
           <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee;">

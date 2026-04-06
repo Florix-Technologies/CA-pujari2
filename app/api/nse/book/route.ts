@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     }
 
     // Centralized Admin Recipient for all programs
-    const targetAdminEmail = process.env.ADMIN_EMAIL || 'admin@cashobha.in'
+    const targetAdminEmails = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',') : ['admin@cashobha.in']
 
     // 1. Save to Supabase (reusing bookings table)
     const supabaseAdmin = createServerSupabase()
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
             
             <p>Our team will reach out to you within 24 hours with your login credentials, program schedule, and onboarding material.</p>
             
-            <p>If you have any questions, feel free to reply to this email or contact us at <a href="mailto:${targetAdminEmail}" style="color: #D1AF62;">${targetAdminEmail}</a>.</p>
+            <p>If you have any questions, feel free to reply to this email or contact us at <a href="mailto:${targetAdminEmails[0]}" style="color: #D1AF62;">${targetAdminEmails[0]}</a>.</p>
             
             <p style="margin-top: 40px;">Best regards,<br><strong>Shobha Pujari Team</strong></p>
           </div>
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       // Email 2: Admin Notification
       await resend.emails.send({
         from: 'NSE Booking System <info@cashobha.in>',
-        to: targetAdminEmail,
+        to: targetAdminEmails,
         subject: `New NSE Enrollment: ${name} (${webinar_title})`,
         html: `
           <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee;">
