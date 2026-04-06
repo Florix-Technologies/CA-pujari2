@@ -17,6 +17,10 @@ export function Navigation() {
   const router = useRouter()
   const pathname = usePathname()
   const { isLight } = useTheme()
+  const { user, loading, role } = useAuth()
+
+  const displayName =
+    (user as any)?.user_metadata?.full_name || (user as any)?.user_metadata?.fullName || (user as any)?.email
 
   const navItems = [
     { label: "Home", href: "/" },
@@ -27,6 +31,11 @@ export function Navigation() {
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
   ]
+
+  // Add Admin link if user is admin
+  if (role === 'admin') {
+    navItems.push({ label: "Admin", href: "/admin" })
+  }
 
   // Track scroll for style + hide-on-scroll-down behaviour
   useEffect(() => {
@@ -66,11 +75,6 @@ export function Navigation() {
   const logoShadow = isLight ? "drop-shadow-md" : "drop-shadow-lg"
 
   function AuthArea() {
-    const { user, loading } = useAuth()
-
-    const displayName =
-      (user as any)?.user_metadata?.full_name || (user as any)?.user_metadata?.fullName || (user as any)?.email
-
     const handleSignOut = async () => {
       await supabase.auth.signOut()
       router.push('/')
@@ -97,15 +101,28 @@ export function Navigation() {
 
     return (
       <div className="flex items-center gap-3">
-        <div className="hidden lg:flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-full border border-border shadow-sm">
-          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+        <div 
+          className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm transition-colors"
+          style={{ 
+            backgroundColor: isLight ? '#fcfaf5' : '#1E293B',
+            borderColor: isLight ? '#E0D5C7' : 'rgba(255, 255, 255, 0.1)',
+            color: isLight ? '#3E3730' : '#E2E8F0'
+          }}
+        >
+          <div 
+            className="w-6 h-6 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: isLight ? '#D1AF62/20' : 'rgba(96, 165, 250, 0.2)', color: isLight ? '#D1AF62' : '#60A5FA' }}
+          >
             <UserIcon size={14} />
           </div>
-          <span className="text-xs font-medium max-w-[100px] truncate">{displayName}</span>
+          <span className="text-xs font-semibold max-w-[120px] truncate">{displayName}</span>
         </div>
         <button
           onClick={handleSignOut}
-          className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-full transition-colors"
+          className="p-2 rounded-full transition-all duration-300 hover:scale-110"
+          style={{ color: isLight ? '#A38970' : '#CBD5E1' }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#EF4444'}
+          onMouseLeave={(e) => e.currentTarget.style.color = isLight ? '#A38970' : '#CBD5E1'}
           title="Sign Out"
         >
           <LogOut size={18} />

@@ -90,7 +90,7 @@ type Booking = {
 }
 
 export default function AdminPage() {
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, role } = useAuth()
   const { isLight } = useTheme()
   const router = useRouter()
 
@@ -115,19 +115,22 @@ export default function AdminPage() {
   const [submitLoading, setSubmitLoading] = useState(false)
   const [message, setMessage] = useState('')
 
-  // Redirect to login if not authenticated
+  // Redirect to login if not authenticated or not admin
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login')
+    if (!authLoading && (!user || role !== 'admin')) {
+      router.replace('/login')
     }
-  }, [user, authLoading, router])
+  }, [user, authLoading, role, router])
 
-  // Load courses and webinars
+  // Load data when role is confirmed as admin
   useEffect(() => {
-    loadData()
-  }, [])
+    if (role === 'admin') {
+      loadData()
+    }
+  }, [role])
 
   async function loadData() {
+    if (!user || role !== 'admin') return;
     setLoading(true)
     setError('')
     try {
@@ -409,18 +412,20 @@ export default function AdminPage() {
     { id: '2', title: 'Candlestick Patterns That Work', description: 'Professional trading patterns explained.', starts_at: '2026-04-22T19:00:00', duration_minutes: 120, platform: 'Google Meet', price: '₹299', seats: 300 },
   ]
 
-  if (authLoading) {
+  if (authLoading || (user && !role)) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen flex items-center justify-center">
-          <p>Loading admin panel...</p>
-        </div>
-      </>
+      <div className={`min-h-screen flex flex-col items-center justify-center ${isLight ? 'bg-[#fcfaf5]' : 'bg-[#0A1128]'}`}>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mb-4"
+        />
+        <p className={`font-medium ${isLight ? 'text-slate-600' : 'text-blue-200'}`}>Authenticating Admin...</p>
+      </div>
     )
   }
 
-  if (!user) {
+  if (!user || role !== 'admin') {
     return null
   }
 
@@ -433,22 +438,22 @@ export default function AdminPage() {
       <Navigation />
 
       <div 
-        className="min-h-screen pt-32 pb-16"
+        className="min-h-screen pt-32 pb-16 transition-colors duration-300"
         style={{
-          backgroundColor: isLight ? '#F7F2E8' : '#0F172A',
+          backgroundColor: isLight ? '#F7F2E8' : '#0A1128',
         }}
       >
         <motion.div variants={stagger} initial="hidden" animate="visible" className="max-w-7xl mx-auto px-6">
           <motion.h1 
             variants={fadeUp} 
-            className="text-4xl font-bold mb-2"
-            style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}
+            className="text-4xl font-bold mb-2 tracking-tight"
+            style={{ color: isLight ? '#3E3730' : '#FFFFFF' }}
           >
             Admin Dashboard
           </motion.h1>
           <motion.p 
             variants={fadeUp} 
-            style={{ color: isLight ? '#A38970' : '#CBD5E1' }}
+            style={{ color: isLight ? '#A38970' : 'rgba(255, 255, 255, 0.7)' }}
             className="mb-8"
           >
             Manage courses and webinars
@@ -456,34 +461,31 @@ export default function AdminPage() {
 
           {/* STATS HUD */}
           <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <Card style={{ backgroundColor: isLight ? '#FFFFFF' : '#1E293B' }} className="border-l-4 border-l-[#D1AF62] shadow-sm">
+            <Card style={{ backgroundColor: isLight ? '#FFFFFF' : '#1E293B', borderColor: isLight ? '#E0D5C7' : 'rgba(255,255,255,0.1)' }} className="border-l-4 border-l-blue-600 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-sm font-medium opacity-70">True Course Enrollments</CardTitle>
-                <Users className="w-4 h-4 text-[#D1AF62]" />
+                <CardTitle className={`text-sm font-medium ${isLight ? 'opacity-70' : 'text-slate-300'}`}>True Course Enrollments</CardTitle>
+                <Users className="w-4 h-4 text-blue-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{totalCourseRegs.toLocaleString()}</div>
-                <p className="text-[10px] opacity-50 mt-1">Verified from bookings table</p>
+                <div className={`text-2xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>{totalCourseRegs.toLocaleString()}</div>
               </CardContent>
             </Card>
-            <Card style={{ backgroundColor: isLight ? '#FFFFFF' : '#1E293B' }} className="border-l-4 border-l-primary shadow-sm">
+            <Card style={{ backgroundColor: isLight ? '#FFFFFF' : '#1E293B', borderColor: isLight ? '#E0D5C7' : 'rgba(255,255,255,0.1)' }} className="border-l-4 border-l-blue-500 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-sm font-medium opacity-70">Webinar signups</CardTitle>
-                <BarChart3 className="w-4 h-4 text-primary" />
+                <CardTitle className={`text-sm font-medium ${isLight ? 'opacity-70' : 'text-slate-300'}`}>Webinar signups</CardTitle>
+                <BarChart3 className="w-4 h-4 text-blue-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{totalWebinarRegs.toLocaleString()}</div>
-                <p className="text-[10px] opacity-50 mt-1">Verified from bookings table</p>
+                <div className={`text-2xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>{totalWebinarRegs.toLocaleString()}</div>
               </CardContent>
             </Card>
-            <Card style={{ backgroundColor: isLight ? '#FFFFFF' : '#1E293B' }} className="border-l-4 border-l-blue-500 shadow-sm">
+            <Card style={{ backgroundColor: isLight ? '#FFFFFF' : '#1E293B', borderColor: isLight ? '#E0D5C7' : 'rgba(255,255,255,0.1)' }} className="border-l-4 border-l-blue-400 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-sm font-medium opacity-70">NSE Enrollments</CardTitle>
-                <TrendingUp className="w-4 h-4 text-blue-500" />
+                <CardTitle className={`text-sm font-medium ${isLight ? 'opacity-70' : 'text-slate-300'}`}>NSE Enrollments</CardTitle>
+                <TrendingUp className="w-4 h-4 text-blue-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{totalNSERegs.toLocaleString()}</div>
-                <p className="text-[10px] opacity-50 mt-1">Verified from bookings table</p>
+                <div className={`text-2xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>{totalNSERegs.toLocaleString()}</div>
               </CardContent>
             </Card>
           </motion.div>
@@ -491,11 +493,11 @@ export default function AdminPage() {
           {message && (
             <motion.div 
               variants={fadeUp} 
-              className="mb-6 p-4 rounded-lg"
+              className="mb-6 p-4 rounded-lg border shadow-sm"
               style={{
-                backgroundColor: isLight ? '#F7F2E8' : '#0F172A',
+                backgroundColor: isLight ? '#F7F2E8' : '#1E293B',
                 borderColor: isLight ? '#E0D5C7' : '#334155',
-                color: isLight ? '#3E3730' : '#E0E7FF',
+                color: isLight ? '#3E3730' : '#60A5FA',
               }}
             >
               {message}
@@ -521,11 +523,41 @@ export default function AdminPage() {
           )}
 
           <Tabs defaultValue="courses" className="w-full">
-            <TabsList className="mb-8 w-full grid w-full grid-cols-4">
-              <TabsTrigger value="courses" className="w-full">Courses ({courses.length})</TabsTrigger>
-              <TabsTrigger value="webinars" className="w-full">Webinars ({webinars.length})</TabsTrigger>
-              <TabsTrigger value="nse" className="w-full">NSE ({nsePrograms.length})</TabsTrigger>
-              <TabsTrigger value="leads" className="w-full">Leads ({inquiries.length + bookings.length})</TabsTrigger>
+            <TabsList 
+              className="mb-8 w-full grid w-full grid-cols-4 border shadow-sm"
+              style={{
+                backgroundColor: isLight ? '#FDFBF7' : '#1E293B',
+                borderColor: isLight ? '#E0D5C7' : 'rgba(255,255,255,0.1)',
+              }}
+            >
+              <TabsTrigger 
+                value="courses" 
+                className={`w-full font-semibold ${isLight ? 'data-[state=active]:bg-[#DBC5A0] data-[state=active]:text-[#3E3730]' : 'data-[state=active]:bg-[#1E40AF] data-[state=active]:text-white'}`}
+                style={{ color: isLight ? '#3E3730' : '#FFFFFF' }}
+              >
+                Courses ({courses.length})
+              </TabsTrigger>
+              <TabsTrigger 
+                value="webinars" 
+                className={`w-full font-semibold ${isLight ? 'data-[state=active]:bg-[#DBC5A0] data-[state=active]:text-[#3E3730]' : 'data-[state=active]:bg-[#1E40AF] data-[state=active]:text-white'}`}
+                style={{ color: isLight ? '#3E3730' : '#FFFFFF' }}
+              >
+                Webinars ({webinars.length})
+              </TabsTrigger>
+              <TabsTrigger 
+                value="nse" 
+                className={`w-full font-semibold ${isLight ? 'data-[state=active]:bg-[#DBC5A0] data-[state=active]:text-[#3E3730]' : 'data-[state=active]:bg-[#1E40AF] data-[state=active]:text-white'}`}
+                style={{ color: isLight ? '#3E3730' : '#FFFFFF' }}
+              >
+                NSE ({nsePrograms.length})
+              </TabsTrigger>
+              <TabsTrigger 
+                value="leads" 
+                className={`w-full font-semibold ${isLight ? 'data-[state=active]:bg-[#DBC5A0] data-[state=active]:text-[#3E3730]' : 'data-[state=active]:bg-[#1E40AF] data-[state=active]:text-white'}`}
+                style={{ color: isLight ? '#3E3730' : '#FFFFFF' }}
+              >
+                Leads ({inquiries.length + bookings.length})
+              </TabsTrigger>
             </TabsList>
 
             {/* ===== COURSES TAB ===== */}
@@ -537,12 +569,13 @@ export default function AdminPage() {
                     backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
                     borderColor: isLight ? '#E0D5C7' : '#334155',
                   }}
+                  className="shadow-md"
                 >
                   <CardHeader>
-                    <CardTitle style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>
+                    <CardTitle style={{ color: isLight ? '#3E3730' : '#FFFFFF' }}>
                       {editingCourse ? 'Edit Course' : 'Create New Course'}
                     </CardTitle>
-                    <CardDescription style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>
+                    <CardDescription style={{ color: isLight ? '#A38970' : 'rgba(255, 255, 255, 0.6)' }}>
                       Fill in the course details below
                     </CardDescription>
                   </CardHeader>
@@ -550,70 +583,84 @@ export default function AdminPage() {
                     <form onSubmit={handleCreateCourse} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="title">Title *</Label>
+                          <Label htmlFor="title" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Title *</Label>
                           <Input
                             id="title"
                             placeholder="e.g., Trading Fundamentals"
                             value={courseForm.title}
                             onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
+                            className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
                             required
                           />
                         </div>
                         <div>
-                          <Label htmlFor="level">Level</Label>
+                          <Label htmlFor="level" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Level</Label>
                           <Input
                             id="level"
                             placeholder="e.g., Beginner"
                             value={courseForm.level}
                             onChange={(e) => setCourseForm({ ...courseForm, level: e.target.value })}
+                            className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
                           />
                         </div>
                       </div>
 
                       <div>
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Description</Label>
                         <Textarea
                           id="description"
                           placeholder="Course description"
                           value={courseForm.description}
                           onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
                           rows={3}
+                          className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
                         />
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <Label htmlFor="duration">Duration</Label>
+                          <Label htmlFor="duration" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Duration</Label>
                           <Input
                             id="duration"
                             placeholder="e.g., 4 weeks"
                             value={courseForm.duration}
                             onChange={(e) => setCourseForm({ ...courseForm, duration: e.target.value })}
+                            className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
                           />
                         </div>
                         <div>
-                          <Label htmlFor="modules">Modules</Label>
+                          <Label htmlFor="modules" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Modules</Label>
                           <Input
                             id="modules"
                             type="number"
                             placeholder="e.g., 12"
                             value={courseForm.modules}
                             onChange={(e) => setCourseForm({ ...courseForm, modules: parseInt(e.target.value) || 0 })}
+                            className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
                           />
                         </div>
                         <div>
-                          <Label htmlFor="price">Price</Label>
+                          <Label htmlFor="price" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Price</Label>
                           <Input
                             id="price"
                             placeholder="e.g., ₹4,999"
                             value={courseForm.price}
                             onChange={(e) => setCourseForm({ ...courseForm, price: e.target.value })}
+                            className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
                           />
                         </div>
                       </div>
 
                       <div className="flex gap-4">
-                        <Button type="submit" disabled={submitLoading}>
+                        <Button 
+                          type="submit" 
+                          disabled={submitLoading}
+                          style={{
+                            backgroundColor: isLight ? '' : '#1E40AF',
+                            color: isLight ? '' : '#FFFFFF',
+                          }}
+                          className={!isLight ? 'hover:bg-[#1D4ED8] border-none font-bold' : ''}
+                        >
                           {editingCourse ? 'Update Course' : 'Create Course'}
                         </Button>
                         {editingCourse && (
@@ -624,6 +671,7 @@ export default function AdminPage() {
                               setEditingCourse(null)
                               setCourseForm({ title: '', description: '', duration: '', level: 'Beginner', modules: 0, price: '' })
                             }}
+                            style={{ color: isLight ? '' : '#FFFFFF', borderColor: isLight ? '' : 'rgba(255,255,255,0.2)' }}
                           >
                             Cancel
                           </Button>
@@ -637,8 +685,18 @@ export default function AdminPage() {
               {/* Courses List */}
               <motion.div variants={fadeUp} initial="hidden" animate="visible">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold">All Courses</h2>
-                  <Button onClick={loadData} variant="outline" size="sm">
+                  <h2 className="text-2xl font-bold" style={{ color: isLight ? '#3E3730' : '#93C5FD' }}>All Courses</h2>
+                  <Button 
+                    onClick={loadData} 
+                    variant="outline" 
+                    size="sm" 
+                    style={{ 
+                      backgroundColor: isLight ? '' : '#1E40AF',
+                      color: isLight ? '' : '#FFFFFF',
+                      borderColor: isLight ? '' : 'rgba(255,255,255,0.1)' 
+                    }}
+                    className={!isLight ? 'border-none font-medium hover:bg-[#1D4ED8]' : ''}
+                  >
                     <RefreshCw className="w-4 h-4 mr-2" /> Refresh
                   </Button>
                 </div>
@@ -652,22 +710,26 @@ export default function AdminPage() {
                         key={course.id}
                         style={{
                           backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
-                          borderColor: isLight ? '#E0D5C7' : '#334155',
+                          borderColor: isLight ? '#E0D5C7' : 'rgba(255,255,255,0.1)',
                         }}
+                        className="shadow-sm border transition-all hover:shadow-md"
                       >
                         <CardHeader>
-                          <CardTitle className="text-lg" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>{course.title}</CardTitle>
-                          <CardDescription style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>{course.level}</CardDescription>
+                          <CardTitle className="text-lg" style={{ color: isLight ? '#3E3730' : '#FFFFFF' }}>{course.title}</CardTitle>
+                          <CardDescription style={{ color: isLight ? '#A38970' : 'rgba(255,255,255,0.6)' }}>{course.level}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-2">
-                          <p style={{ color: isLight ? '#A38970' : '#CBD5E1' }} className="text-sm line-clamp-2">{course.description}</p>
-                          <div style={{ color: isLight ? '#A38970' : '#CBD5E1' }} className="text-xs space-y-1">
-                            <div className="flex items-center gap-2 font-bold text-primary mb-1">
+                          <p style={{ color: isLight ? '#A38970' : 'rgba(255,255,255,0.7)' }} className="text-sm line-clamp-2">{course.description}</p>
+                          <div style={{ color: isLight ? '#A38970' : 'rgba(255,255,255,0.6)' }} className="text-xs space-y-1">
+                            <div 
+                              className="flex items-center gap-2 font-bold mb-1"
+                              style={{ color: isLight ? '#D1AF62' : '#60A5FA' }}
+                            >
                               <Users className="w-3 h-3" />
                               <span>{bookings.filter(b => (b.tier_name === course.title || b.tier_name.toLowerCase().includes(course.title.toLowerCase())) && b.service_type === 'Course').length} Registered</span>
                             </div>
                             <p>{course.duration} • {course.modules} modules</p>
-                            <p className="font-semibold">{course.price}</p>
+                            <p className="font-semibold text-slate-200">{course.price}</p>
                           </div>
                           <div className="flex gap-2 pt-2">
                             <Button
@@ -677,10 +739,21 @@ export default function AdminPage() {
                                 setEditingCourse(course)
                                 setCourseForm(course)
                               }}
+                              style={{ 
+                                backgroundColor: isLight ? '' : '#1E40AF',
+                                color: isLight ? '' : '#FFFFFF',
+                                borderColor: isLight ? '' : 'rgba(255,255,255,0.1)'
+                              }}
+                              className={!isLight ? 'border-none hover:bg-[#1D4ED8] shadow-sm' : ''}
                             >
                               <Edit2 className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleDeleteCourse(course.id || '')}>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              onClick={() => handleDeleteCourse(course.id || '')}
+                              className="text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-all hover:scale-110"
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -699,14 +772,15 @@ export default function AdminPage() {
                 <Card
                   style={{
                     backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
-                    borderColor: isLight ? '#E0D5C7' : '#334155',
+                    borderColor: isLight ? '#E0D5C7' : 'rgba(255,255,255,0.1)',
                   }}
+                  className="shadow-md"
                 >
                   <CardHeader>
-                    <CardTitle style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>
+                    <CardTitle style={{ color: isLight ? '#3E3730' : '#FFFFFF' }}>
                       {editingWebinar ? 'Edit Webinar' : 'Create New Webinar'}
                     </CardTitle>
-                    <CardDescription style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>
+                    <CardDescription style={{ color: isLight ? '#A38970' : 'rgba(255,255,255,0.6)' }}>
                       Fill in the webinar details below
                     </CardDescription>
                   </CardHeader>
@@ -714,20 +788,26 @@ export default function AdminPage() {
                     <form onSubmit={handleCreateWebinar} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <Label htmlFor="w-title">Title *</Label>
+                          <Label htmlFor="w-title" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Title *</Label>
                           <Input
                             id="w-title"
                             placeholder="e.g., Stock Market Basics"
                             value={webinarForm.title}
                             onChange={(e) => setWebinarForm({ ...webinarForm, title: e.target.value })}
+                            className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
                             required
                           />
                         </div>
                         <div>
-                          <Label htmlFor="w-category">Category *</Label>
+                          <Label htmlFor="w-category" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Category *</Label>
                           <select
                             id="w-category"
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            className={`flex h-10 w-full rounded-md border px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200`}
+                            style={{ 
+                              backgroundColor: isLight ? '#fcfaf5' : '#0F172A',
+                              borderColor: isLight ? '#E0D5C7' : '#334155',
+                              color: isLight ? '#3E3730' : '#F8FAFC' 
+                            }}
                             value={webinarForm.service_category}
                             onChange={(e) => setWebinarForm({ ...webinarForm, service_category: e.target.value })}
                             required
@@ -738,70 +818,84 @@ export default function AdminPage() {
                           </select>
                         </div>
                         <div>
-                          <Label htmlFor="w-starts_at">Start Date & Time (for Webinars)</Label>
+                          <Label htmlFor="w-starts_at" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Start Date & Time (for Webinars)</Label>
                           <Input
                             id="w-starts_at"
                             type="datetime-local"
                             value={webinarForm.starts_at}
                             onChange={(e) => setWebinarForm({ ...webinarForm, starts_at: e.target.value })}
+                            className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50" : ""}
                           />
                         </div>
                       </div>
 
                       <div>
-                        <Label htmlFor="w-description">Description</Label>
+                        <Label htmlFor="w-description" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Description</Label>
                         <Textarea
                           id="w-description"
                           placeholder="Webinar description"
                           value={webinarForm.description}
                           onChange={(e) => setWebinarForm({ ...webinarForm, description: e.target.value })}
                           rows={3}
+                          className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
                         />
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
-                          <Label htmlFor="w-duration">Duration (min)</Label>
+                          <Label htmlFor="w-duration" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Duration (min)</Label>
                           <Input
                             id="w-duration"
                             type="number"
                             placeholder="e.g., 90"
                             value={webinarForm.duration_minutes}
                             onChange={(e) => setWebinarForm({ ...webinarForm, duration_minutes: parseInt(e.target.value) || 60 })}
+                            className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
                           />
                         </div>
                         <div>
-                          <Label htmlFor="w-platform">Platform</Label>
+                          <Label htmlFor="w-platform" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Platform</Label>
                           <Input
                             id="w-platform"
                             placeholder="e.g., Zoom"
                             value={webinarForm.platform}
                             onChange={(e) => setWebinarForm({ ...webinarForm, platform: e.target.value })}
+                            className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
                           />
                         </div>
                         <div>
-                          <Label htmlFor="w-price">Price</Label>
+                          <Label htmlFor="w-price" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Price</Label>
                           <Input
                             id="w-price"
                             placeholder="e.g., Free"
                             value={webinarForm.price}
                             onChange={(e) => setWebinarForm({ ...webinarForm, price: e.target.value })}
+                            className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
                           />
                         </div>
                         <div>
-                          <Label htmlFor="w-seats">Seats</Label>
+                          <Label htmlFor="w-seats" className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Seats</Label>
                           <Input
                             id="w-seats"
                             type="number"
                             placeholder="e.g., 500"
                             value={webinarForm.seats}
                             onChange={(e) => setWebinarForm({ ...webinarForm, seats: parseInt(e.target.value) || 500 })}
+                            className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
                           />
                         </div>
                       </div>
 
                       <div className="flex gap-4">
-                        <Button type="submit" disabled={submitLoading}>
+                        <Button 
+                          type="submit" 
+                          disabled={submitLoading}
+                          style={{
+                            backgroundColor: isLight ? '' : '#1E40AF',
+                            color: isLight ? '' : '#FFFFFF',
+                          }}
+                          className={!isLight ? 'hover:bg-[#1D4ED8] border-none font-bold' : ''}
+                        >
                           {editingWebinar ? 'Update Webinar' : 'Create Webinar'}
                         </Button>
                         {editingWebinar && (
@@ -812,6 +906,7 @@ export default function AdminPage() {
                               setEditingWebinar(null)
                               setWebinarForm({ title: '', description: '', starts_at: '', duration_minutes: 60, platform: 'Zoom', price: '', seats: 500 })
                             }}
+                            style={{ color: isLight ? '' : '#FFFFFF', borderColor: isLight ? '' : 'rgba(255,255,255,0.2)' }}
                           >
                             Cancel
                           </Button>
@@ -825,8 +920,18 @@ export default function AdminPage() {
               {/* Webinars List */}
               <motion.div variants={fadeUp} initial="hidden" animate="visible">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold">All Webinars</h2>
-                  <Button onClick={loadData} variant="outline" size="sm">
+                  <h2 className="text-2xl font-bold" style={{ color: isLight ? '#3E3730' : '#93C5FD' }}>All Webinars</h2>
+                  <Button 
+                    onClick={loadData} 
+                    variant="outline" 
+                    size="sm" 
+                    style={{ 
+                      backgroundColor: isLight ? '' : '#1E40AF',
+                      color: isLight ? '' : '#FFFFFF',
+                      borderColor: isLight ? '' : 'rgba(255,255,255,0.1)' 
+                    }}
+                    className={!isLight ? 'border-none font-medium hover:bg-[#1D4ED8]' : ''}
+                  >
                     <RefreshCw className="w-4 h-4 mr-2" /> Refresh
                   </Button>
                 </div>
@@ -843,43 +948,61 @@ export default function AdminPage() {
                             key={webinar.id}
                             style={{
                               backgroundColor: isLight ? '#FFFFFF' : '#1E293B',
-                              borderColor: isLight ? '#E0D5C7' : '#334155',
+                              borderColor: isLight ? '#E0D5C7' : 'rgba(255,255,255,0.1)',
                             }}
+                            className="shadow-sm border transition-all hover:shadow-md"
                           >
                             <CardHeader>
                               <div className="flex justify-between items-start">
                                 <div className="space-y-1">
-                                  <CardTitle className="text-lg" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>{webinar.title}</CardTitle>
-                                  <CardDescription style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>{webinar.platform}</CardDescription>
+                                  <CardTitle className="text-lg" style={{ color: isLight ? '#3E3730' : '#FFFFFF' }}>{webinar.title}</CardTitle>
+                                  <CardDescription style={{ color: isLight ? '#A38970' : 'rgba(255,255,255,0.6)' }}>{webinar.platform}</CardDescription>
                                 </div>
-                                <div className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-1 rounded-full uppercase">
+                                <div 
+                                  className="text-[10px] font-bold px-2 py-1 rounded-full uppercase shadow-sm"
+                                  style={{
+                                    backgroundColor: isLight ? '#D1AF62/20' : 'rgba(59, 130, 246, 0.2)',
+                                    color: isLight ? '#D1AF62' : '#60A5FA'
+                                  }}
+                                >
                                   {webinarRegs} Registered
                                 </div>
                               </div>
                             </CardHeader>
                             <CardContent className="space-y-2">
-                              <p style={{ color: isLight ? '#A38970' : '#CBD5E1' }} className="text-sm line-clamp-2">{webinar.description}</p>
-                              <div style={{ color: isLight ? '#A38970' : '#CBD5E1' }} className="text-xs space-y-1">
-                                <p>{safeFormatDate(webinar.starts_at)}</p>
+                              <p style={{ color: isLight ? '#A38970' : 'rgba(255,255,255,0.7)' }} className="text-sm line-clamp-2">{webinar.description}</p>
+                              <div style={{ color: isLight ? '#A38970' : 'rgba(255,255,255,0.6)' }} className="text-xs space-y-1">
+                                <p className="text-slate-200">{safeFormatDate(webinar.starts_at)}</p>
                                 <p>{webinar.duration_minutes || 60} minutes</p>
-                                <p className="font-semibold">{webinar.price || 'N/A'}</p>
+                                <p className="font-semibold text-slate-100">{webinar.price || 'N/A'}</p>
                                 <p>{webinar.seats || 500} seats</p>
                               </div>
                               <div className="flex gap-2 pt-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => {
-                                    setEditingWebinar(webinar)
-                                    setWebinarForm(webinar)
-                                  }}
-                                >
-                                  <Edit2 className="w-4 h-4" />
-                                </Button>
-                                <Button size="sm" variant="destructive" onClick={() => triggerDelete(webinar.id || '', 'webinar', webinar.title)}>
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setEditingWebinar(webinar)
+                                      setWebinarForm(webinar)
+                                    }}
+                                    style={{ 
+                                      backgroundColor: isLight ? '' : '#1E40AF',
+                                      color: isLight ? '' : '#FFFFFF',
+                                      borderColor: isLight ? '' : 'rgba(255,255,255,0.1)'
+                                    }}
+                                    className={!isLight ? 'border-none hover:bg-[#1D4ED8] shadow-sm' : ''}
+                                  >
+                                    <Edit2 className="w-4 h-4" />
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost" 
+                                    onClick={() => triggerDelete(webinar.id || '', 'webinar', webinar.title)}
+                                    className="text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-all hover:scale-110"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
                             </CardContent>
                           </Card>
                         )
@@ -911,26 +1034,37 @@ export default function AdminPage() {
             <TabsContent value="nse" className="space-y-8 min-h-screen">
               {/* NSE Form */}
               <motion.div variants={fadeUp} initial="hidden" animate="visible">
-                <Card style={{ backgroundColor: isLight ? '#FFFFFF' : '#1E293B', borderColor: isLight ? '#E0D5C7' : '#334155' }}>
+                <Card style={{ backgroundColor: isLight ? '#FFFFFF' : '#1E293B', borderColor: isLight ? '#E0D5C7' : 'rgba(255,255,255,0.1)' }} className="shadow-md">
                   <CardHeader>
-                    <CardTitle>{editingNSE ? 'Edit NSE Program' : 'Create NSE Program'}</CardTitle>
-                    <CardDescription>Manage investment program tiers</CardDescription>
+                    <CardTitle style={{ color: isLight ? '#3E3730' : '#FFFFFF' }}>{editingNSE ? 'Edit NSE Program' : 'Create NSE Program'}</CardTitle>
+                    <CardDescription style={{ color: isLight ? '#A38970' : 'rgba(255,255,255,0.6)' }}>Manage investment program tiers</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleCreateNSE} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <Label>Title *</Label>
-                          <Input value={nseForm.title} onChange={e => setNseForm({...nseForm, title: e.target.value})} placeholder="e.g., Basic" required />
+                          <Label className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Title *</Label>
+                          <Input 
+                            value={nseForm.title} 
+                            onChange={e => setNseForm({...nseForm, title: e.target.value})} 
+                            placeholder="e.g., Basic" 
+                            className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""}
+                            required 
+                          />
                         </div>
                         <div>
-                          <Label>Price *</Label>
-                          <Input value={nseForm.price} onChange={e => setNseForm({...nseForm, price: e.target.value})} placeholder="e.g., ₹5,000" required />
+                          <Label className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Price *</Label>
+                          <Input value={nseForm.price} onChange={e => setNseForm({...nseForm, price: e.target.value})} placeholder="e.g., ₹5,000" className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""} required />
                         </div>
                         <div>
-                          <Label>Category</Label>
+                          <Label className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Category</Label>
                           <select 
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            className={`flex h-10 w-full rounded-md border px-3 py-2 text-sm transition-colors duration-200`}
+                            style={{ 
+                              backgroundColor: isLight ? '#fcfaf5' : '#0F172A',
+                              borderColor: isLight ? '#E0D5C7' : '#334155',
+                              color: isLight ? '#3E3730' : '#F8FAFC' 
+                            }}
                             value={nseForm.category} 
                             onChange={e => setNseForm({...nseForm, category: e.target.value})}
                           >
@@ -941,24 +1075,43 @@ export default function AdminPage() {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <Label>Badge / Label</Label>
-                          <Input value={nseForm.badge_label} onChange={e => setNseForm({...nseForm, badge_label: e.target.value})} placeholder="e.g., Starter Access" />
+                          <Label className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Badge / Label</Label>
+                          <Input value={nseForm.badge_label} onChange={e => setNseForm({...nseForm, badge_label: e.target.value})} placeholder="e.g., Starter Access" className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""} />
                         </div>
                         <div>
-                          <Label>Duration & Sessions</Label>
+                          <Label className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Duration & Sessions</Label>
                           <div className="flex gap-2">
-                            <Input value={nseForm.duration} onChange={e => setNseForm({...nseForm, duration: e.target.value})} placeholder="4 Weeks" />
-                            <Input value={nseForm.sessions} onChange={e => setNseForm({...nseForm, sessions: e.target.value})} placeholder="8 Sessions" />
+                            <Input value={nseForm.duration} onChange={e => setNseForm({...nseForm, duration: e.target.value})} placeholder="4 Weeks" className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""} />
+                            <Input value={nseForm.sessions} onChange={e => setNseForm({...nseForm, sessions: e.target.value})} placeholder="8 Sessions" className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""} />
                           </div>
                         </div>
                       </div>
                       <div>
-                        <Label>Description</Label>
-                        <Textarea value={nseForm.description} onChange={e => setNseForm({...nseForm, description: e.target.value})} placeholder="Program details..." rows={2} />
+                        <Label className="mb-1.5 block" style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>Description</Label>
+                        <Textarea value={nseForm.description} onChange={e => setNseForm({...nseForm, description: e.target.value})} placeholder="Program details..." rows={2} className={!isLight ? "bg-[#0F172A] border-slate-700 text-slate-50 placeholder:text-slate-400/60" : ""} />
                       </div>
                       <div className="flex gap-4">
-                        <Button type="submit" disabled={submitLoading}>{editingNSE ? 'Update' : 'Create'}</Button>
-                        {editingNSE && <Button type="button" variant="outline" onClick={() => {setEditingNSE(null); setNseForm({title:'',price:'',badge_label:'',category:'foundational',description:'',duration:'',sessions:''})}}>Cancel</Button>}
+                        <Button 
+                          type="submit" 
+                          disabled={submitLoading}
+                          style={{
+                            backgroundColor: isLight ? '' : '#1E40AF',
+                            color: isLight ? '' : '#FFFFFF',
+                          }}
+                          className={!isLight ? 'hover:bg-[#1D4ED8] border-none font-bold' : ''}
+                        >
+                          {editingNSE ? 'Update' : 'Create'}
+                        </Button>
+                        {editingNSE && (
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => {setEditingNSE(null); setNseForm({title:'',price:'',badge_label:'',category:'foundational',description:'',duration:'',sessions:''})}}
+                            style={{ color: isLight ? '' : '#FFFFFF', borderColor: isLight ? '' : 'rgba(255,255,255,0.2)' }}
+                          >
+                            Cancel
+                          </Button>
+                        )}
                       </div>
                     </form>
                   </CardContent>
@@ -969,26 +1122,65 @@ export default function AdminPage() {
               {nsePrograms.map(program => {
                   const nseRegs = bookings.filter(b => b.service_type === 'NSE' && b.tier_name === program.title).length
                   return (
-                  <Card key={program.id} style={{ backgroundColor: isLight ? '#FFFFFF' : '#1E293B', borderColor: isLight ? '#E0D5C7' : '#334155' }}>
+                  <Card key={program.id} style={{ backgroundColor: isLight ? '#FFFFFF' : '#1E293B', borderColor: isLight ? '#E0D5C7' : 'rgba(255,255,255,0.1)' }} className="shadow-sm border">
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-start">
                         <div className="space-y-1">
-                          <CardTitle className="text-lg">{program.title}</CardTitle>
-                          <CardDescription>{program.badge_label}</CardDescription>
+                          <CardTitle className="text-lg" style={{ color: isLight ? '#3E3730' : '#FFFFFF' }}>{program.title}</CardTitle>
+                          <CardDescription style={{ color: isLight ? '#A38970' : 'rgba(255,255,255,0.6)' }}>{program.badge_label}</CardDescription>
                         </div>
                         <div className="flex flex-col items-end gap-1">
-                          <span className="text-[10px] uppercase font-bold px-2 py-1 bg-blue-500/10 text-blue-500 rounded-full">{program.category}</span>
-                          <span className="text-[10px] font-bold px-2 py-1 bg-primary/10 text-primary rounded-full">{nseRegs} Registered</span>
+                          <span 
+                            className="text-[10px] uppercase font-bold px-2 py-1 rounded-full shadow-sm"
+                            style={{ 
+                              backgroundColor: isLight ? '#fcfaf5' : 'rgba(96, 165, 250, 0.1)',
+                              color: isLight ? '#D1AF62' : '#60A5FA',
+                              borderColor: isLight ? '#E0D5C7' : 'rgba(96, 165, 250, 0.2)',
+                              borderWidth: '1px'
+                            }}
+                          >
+                            {program.category}
+                          </span>
+                          <span 
+                            className="text-[10px] font-bold px-2 py-1 rounded-full shadow-sm"
+                            style={{
+                              backgroundColor: isLight ? '#fcfaf5' : 'rgba(59, 130, 246, 0.2)',
+                              color: isLight ? '#D1AF62' : '#60A5FA',
+                              borderColor: isLight ? '#E0D5C7' : 'rgba(59, 130, 246, 0.2)',
+                              borderWidth: '1px'
+                            }}
+                          >
+                            {nseRegs} Registered
+                          </span>
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent className="text-sm space-y-2">
-                      <p className="opacity-70 line-clamp-2">{program.description}</p>
+                      <p className="line-clamp-2" style={{ color: isLight ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)' }}>{program.description}</p>
                       <div className="font-bold text-primary">{program.price}</div>
-                      <p className="text-xs opacity-50">{program.duration} • {program.sessions}</p>
+                      <p className="text-xs" style={{ color: isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)' }}>{program.duration} • {program.sessions}</p>
                       <div className="flex gap-2 pt-2">
-                        <Button size="sm" variant="outline" onClick={() => {setEditingNSE(program); setNseForm(program)}}><Edit2 className="w-4 h-4" /></Button>
-                        <Button size="sm" variant="destructive" onClick={() => triggerDelete(program.id!, 'nse', program.title)}><Trash2 className="w-4 h-4" /></Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => {setEditingNSE(program); setNseForm(program)}}
+                          style={{ 
+                            backgroundColor: isLight ? '' : '#1E40AF',
+                            color: isLight ? '' : '#FFFFFF',
+                            borderColor: isLight ? '' : 'rgba(255,255,255,0.1)'
+                          }}
+                          className={!isLight ? 'border-none hover:bg-[#1D4ED8]' : ''}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          onClick={() => triggerDelete(program.id!, 'nse', program.title)}
+                          className="text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-all hover:scale-110"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -1001,13 +1193,30 @@ export default function AdminPage() {
             {/* ===== LEADS & BOOKINGS TAB ===== */}
             <TabsContent value="leads" className="space-y-8 min-h-screen">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold">Inquiries & Program Enrollments</h2>
+                <h2 className="text-2xl font-bold" style={{ color: isLight ? '#3E3730' : '#93C5FD' }}>Inquiries & Program Enrollments</h2>
                 <div className="flex gap-2">
-                  <div className="flex items-center gap-4 bg-muted/30 px-4 py-1.5 rounded-full border border-border text-xs font-medium">
+                  <div 
+                    className="flex items-center gap-4 px-4 py-1.5 rounded-full border text-xs font-medium"
+                    style={{ 
+                      backgroundColor: isLight ? '#DBC5A0/20' : 'rgba(30, 41, 59, 0.5)',
+                      borderColor: isLight ? '#E0D5C7' : 'rgba(255, 255, 255, 0.1)',
+                      color: isLight ? '#3E3730' : '#CBD5E1'
+                    }}
+                  >
                     <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500"></span> Foundational: {bookings.filter(b => b.tier_name.toLowerCase().includes('foundational')).length}</span>
                     <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-500"></span> Advanced: {bookings.filter(b => b.tier_name.toLowerCase().includes('advanced')).length}</span>
                   </div>
-                  <Button onClick={loadData} variant="outline" size="sm">
+                  <Button 
+                    onClick={loadData} 
+                    variant="outline" 
+                    size="sm"
+                    style={{ 
+                      backgroundColor: isLight ? '' : '#1E40AF',
+                      color: isLight ? '' : '#FFFFFF',
+                      borderColor: isLight ? '' : 'rgba(255,255,255,0.1)'
+                    }}
+                    className={!isLight ? 'border-none font-medium hover:bg-[#1D4ED8]' : ''}
+                  >
                     <RefreshCw className="w-4 h-4 mr-2" /> Refresh
                   </Button>
                 </div>
@@ -1015,17 +1224,33 @@ export default function AdminPage() {
 
               {/* Webinar Inquiries */}
               <div className="space-y-4">
-                <h3 className="text-xl font-semibold border-l-4 border-primary pl-3 py-1">Webinar Inquiries ({inquiries.length})</h3>
+                <h3 
+                  className="text-xl font-semibold border-l-4 pl-3 py-1" 
+                  style={{ 
+                    color: isLight ? '#3E3730' : '#93C5FD',
+                    borderColor: isLight ? '#D1AF62' : '#60A5FA' 
+                  }}
+                >
+                  Webinar Inquiries ({inquiries.length})
+                </h3>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {inquiries.map((inq) => (
-                    <Card key={inq.id} style={{ backgroundColor: isLight ? '#FFFFFF' : '#1E293B', borderColor: isLight ? '#E0D5C7' : '#334155' }}>
+                    <Card key={inq.id} style={{ backgroundColor: isLight ? '#FFFFFF' : '#1E293B', borderColor: isLight ? '#E0D5C7' : 'rgba(255,255,255,0.1)' }} className="shadow-sm border">
                       <CardHeader className="pb-2">
                         <div className="flex justify-between items-start">
                           <div>
-                            <CardTitle className="text-lg">{inq.full_name}</CardTitle>
-                            <CardDescription>{inq.service_interested || 'General Inquiry'}</CardDescription>
+                            <CardTitle className="text-lg" style={{ color: isLight ? '#3E3730' : '#FFFFFF' }}>{inq.full_name}</CardTitle>
+                            <CardDescription style={{ color: isLight ? '#A38970' : 'rgba(255, 255, 255, 0.6)' }}>{inq.service_interested || 'General Inquiry'}</CardDescription>
                           </div>
-                          <span className="text-[10px] opacity-60 bg-muted px-2 py-1 rounded-full">{safeFormatDate(inq.created_at)}</span>
+                          <span 
+                            className="text-[10px] px-2 py-1 rounded-full" 
+                            style={{ 
+                              backgroundColor: isLight ? '#F9F6F0' : 'rgba(255, 255, 255, 0.05)',
+                              color: isLight ? '#A38970' : 'rgba(255, 255, 255, 0.6)' 
+                            }}
+                          >
+                            {safeFormatDate(inq.created_at)}
+                          </span>
                         </div>
                       </CardHeader>
                       <CardContent>
@@ -1048,23 +1273,30 @@ export default function AdminPage() {
                               size="sm" 
                               className="h-8 py-0 px-2 text-xs" 
                               onClick={() => toggleReveal(inq.id)}
+                              style={{ color: isLight ? '' : '#60A5FA' }}
                             >
                               {revealedIds[inq.id] ? <><EyeOff className="w-3 h-3 mr-1" /> Hide</> : <><Eye className="w-3 h-3 mr-1" /> Reveal Info</>}
                             </Button>
                           </div>
 
-                          <div className="p-3 rounded-md bg-muted/30 border border-border/50 text-sm italic">
+                          <div 
+                            className="p-3 rounded-md border text-sm italic"
+                            style={{ 
+                              backgroundColor: isLight ? '#FDFBF7' : 'rgba(15, 23, 42, 0.3)',
+                              borderColor: isLight ? '#E0D5C7' : 'rgba(255, 255, 255, 0.1)'
+                            }}
+                          >
                             "{inq.message}"
                           </div>
 
                           {revealedIds[inq.id] && inq.phone_number && (
                             <div className="flex gap-2 pt-1">
-                              <Button size="sm" variant="outline" className="flex-1 text-xs" asChild>
+                              <Button size="sm" variant="outline" className="flex-1 text-xs" asChild style={{ color: isLight ? '' : '#FFFFFF', borderColor: isLight ? '' : 'rgba(255,255,255,0.2)' }}>
                                 <a href={`https://wa.me/${inq.phone_number.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer">
                                   <MessageSquare className="w-3 h-3 mr-1" /> WhatsApp
                                 </a>
                               </Button>
-                              <Button size="sm" variant="outline" className="flex-1 text-xs" asChild>
+                              <Button size="sm" variant="outline" className="flex-1 text-xs" asChild style={{ color: isLight ? '' : '#FFFFFF', borderColor: isLight ? '' : 'rgba(255,255,255,0.2)' }}>
                                 <a href={`mailto:${inq.email}`}>
                                   Email Client
                                 </a>
@@ -1080,10 +1312,25 @@ export default function AdminPage() {
 
               {/* NSE Bookings */}
               <div className="space-y-4 pt-8">
-                <h3 className="text-xl font-semibold border-l-4 border-[#D1AF62] pl-3 py-1">NSE Program Bookings ({bookings.length})</h3>
+                <h3 
+                  className="text-xl font-semibold border-l-4 pl-3 py-1" 
+                  style={{ 
+                    color: isLight ? '#3E3730' : '#93C5FD',
+                    borderColor: isLight ? '#D1AF62' : '#60A5FA' 
+                  }}
+                >
+                  NSE Program Bookings ({bookings.length})
+                </h3>
                 <div className="overflow-x-auto rounded-lg border border-border">
                   <table className="w-full text-sm text-left">
-                    <thead className="text-xs uppercase bg-muted/50">
+                    <thead 
+                      className="text-xs uppercase border-b"
+                      style={{ 
+                        backgroundColor: isLight ? '#F9F6F0' : '#0F172A',
+                        borderColor: isLight ? '#E0D5C7' : 'rgba(255, 255, 255, 0.1)',
+                        color: isLight ? '#3E3730' : '#94A3B8'
+                      }}
+                    >
                       <tr>
                         <th className="px-4 py-3">Client</th>
                         <th className="px-4 py-3">Program / Tier</th>
@@ -1093,12 +1340,21 @@ export default function AdminPage() {
                         <th className="px-4 py-3 text-right">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-border">
+                    <tbody style={{ color: isLight ? '#3E3730' : '#E2E8F0' }}>
                       {bookings.length === 0 ? (
                         <tr><td colSpan={6} className="px-4 py-8 text-center opacity-50">No bookings yet</td></tr>
                       ) : (
                         bookings.map((book) => (
-                          <tr key={book.id} className="hover:bg-muted/30 transition-colors">
+                          <tr 
+                            key={book.id} 
+                            className="transition-colors"
+                            style={{ 
+                              borderBottom: `1px solid ${isLight ? '#E0D5C7' : 'rgba(255, 255, 255, 0.05)'}`,
+                              backgroundColor: 'transparent'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isLight ? '#F9F6F0' : 'rgba(255, 255, 255, 0.03)'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                          >
                             <td className="px-4 py-3 font-medium">{book.full_name}</td>
                             <td className="px-4 py-3">
                               <span className="font-semibold block">{book.tier_name}</span>
@@ -1123,8 +1379,13 @@ export default function AdminPage() {
                               <Button 
                                 variant="outline" 
                                 size="sm" 
-                                className="h-8 px-3" 
+                                className="h-8 px-3 transition-all hover:scale-105" 
                                 onClick={() => toggleReveal(book.id)}
+                                style={{ 
+                                  backgroundColor: isLight ? '' : '#1E40AF',
+                                  color: isLight ? '' : '#FFFFFF',
+                                  borderColor: isLight ? '' : 'rgba(255, 255, 255, 0.1)'
+                                }}
                               >
                                 {revealedIds[book.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                               </Button>
@@ -1177,7 +1438,8 @@ export default function AdminPage() {
                       Cancel
                     </Button>
                     <Button 
-                      className="flex-1 py-6 rounded-xl font-bold bg-red-600 hover:bg-red-700 text-white" 
+                      className="flex-1 py-6 rounded-xl font-bold border-red-500 text-red-500 hover:bg-red-500/10" 
+                      variant="outline"
                       onClick={confirmDelete}
                     >
                       Delete Forever

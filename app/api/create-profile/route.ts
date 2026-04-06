@@ -33,6 +33,31 @@ export async function POST(request: Request) {
       if (insertError) {
         return NextResponse.json({ error: insertError.message }, { status: 500 })
       }
+
+      // Trigger New User Registration Email to Admin
+      try {
+        const { Resend } = await import('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY || '');
+        const adminEmail = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',')[0] : 'admin@cashobha.in';
+
+        await resend.emails.send({
+          from: 'Shobha Registration <info@cashobha.in>',
+          to: adminEmail, // Sending specifically to the requested inbox
+          subject: `New User Registration: ${full_name || email}`,
+          html: `
+            <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee;">
+              <h2 style="color: #D1AF62;">New Platform Registration</h2>
+              <p>A new user has signed up for the platform.</p>
+              <p><strong>Name:</strong> ${full_name || 'N/A'}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+          `
+        });
+      } catch (emailError) {
+        console.error('Failed to send registration notification email:', emailError);
+      }
+
     } else {
       // Profile exists, just update email or full_name if needed (don't touch role)
       const { error: updateError } = await supabaseAdmin
