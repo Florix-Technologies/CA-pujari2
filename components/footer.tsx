@@ -90,6 +90,7 @@ export function Footer() {
           }}
         >
           <p>&copy; 2026 Shobha Pujari. All rights reserved.</p>
+          <h1 className="text-4xl opacity-80 mt-2">Developed by <a href="https://florixtechnologies.com/" target="_blank" rel="noopener noreferrer" className="hover:opacity-100 transition-opacity underline">Florix Technologies</a></h1>
         </div>
       </div>
     </footer>
