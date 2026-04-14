@@ -46,8 +46,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 export function useTheme() {
   const context = useContext(ThemeContext);
+  
+  // Handle case where hook is called before hydration or outside provider
   if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    // Return default values instead of throwing error
+    // This prevents SSR/hydration errors
+    return {
+      theme: 'dark' as Theme,
+      toggleTheme: () => {},
+      isLight: false,
+    };
   }
   return context;
 }
