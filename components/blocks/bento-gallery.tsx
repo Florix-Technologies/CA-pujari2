@@ -6,89 +6,107 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
 
-const IMAGES = [
-  {
-    src: "/bento gallery/8.png",
-    label: "Why Most Traders Stay Stuck",
-  },
-  {
-    src: "/bento gallery/9.png",
-    label: "Two Types of Traders",
-  },
-  {
-    src: "/bento gallery/7.png",
-    label: "NSE Programs",
-  },
-  {
-    src: "/bento gallery/10.png",
-    label: "Why Live Webinars Matter",
-  },
-  {
-    src: "/bento gallery/11.png",
-    label: "Why Business Strategy Consultation Matters",
-  },
-]
+// One master infographic per theme — resized to 2752×1310 (≈2.10:1) to match full screen
+const INFOGRAPHICS = {
+  light: "/bento gallery/light_infographic_2752x1310.png",
+  dark: "/bento gallery/Home_Page_Illustration_Dark_2752x1310.png",
+}
 
-// Each cell slides in from a unique direction
-// direction: [x%, y%] — how far off-screen it starts
-const cellDirections = [
-  { x: "-100%", y: "0%" },  // large left cell  → slides from left
-  { x: "100%", y: "-100%" }, // top-right        → slides from top-right
-  { x: "100%", y: "100%" }, // mid-right        → slides from bottom-right
-  { x: "0%", y: "100%" }, // bottom-left      → slides from bottom
-  { x: "0%", y: "100%" }, // bottom-right     → slides from bottom
-]
-
+/**
+ * 2×2 puzzle grid — premium scroll-driven animation.
+ *
+ * Each piece flies in from its own corner with:
+ *   • Soft spring physics (slow, luxurious deceleration)
+ *   • Subtle scale: 0.92 → 1 as it arrives (depth illusion)
+ *   • Opacity:  0 → 1 during first half of flight (graceful appearance)
+ *   • Tiny stagger so pieces arrive in a cascade, not all at once
+ *
+ *  ┌───────┬───────┐
+ *  │  TL   │  TR   │   TL first → TR → BL → BR last
+ *  ├───────┼───────┤
+ *  │  BL   │  BR   │
+ *  └───────┴───────┘
+ */
 export function BentoGallery() {
   const { isLight } = useTheme()
   const containerRef = useRef<HTMLDivElement>(null)
+
+  const currentImage = isLight ? INFOGRAPHICS.light : INFOGRAPHICS.dark
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   })
 
-  // Smooth out the scroll progress with a slightly more "relaxed" spring
+  // Very soft spring — stiffness ↓, damping ↑ = longer, silkier ease-out
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 80,
-    damping: 35,
-    restDelta: 0.001
+    stiffness: 50,
+    damping: 40,
+    restDelta: 0.0005,
   })
 
-  // Phase 1 (0–0.30): headline
-  const textOpacity = useTransform(smoothProgress, [0, 0.05, 0.22, 0.30], [0, 1, 1, 0])
-  const textY = useTransform(smoothProgress, [0, 0.05], [20, 0])
+  // ── Phase 1: Headline ─────────────────────────────────────
+  const textOpacity = useTransform(smoothProgress, [0, 0.06, 0.20, 0.28], [0, 1, 1, 0])
+  const textY       = useTransform(smoothProgress, [0, 0.06], [28, 0])
+  const textScale   = useTransform(smoothProgress, [0, 0.06], [0.97, 1])
 
-  // Phase 2 (0.25–0.75): images flying in (More relaxed timing)
-  const img0X = useTransform(smoothProgress, [0.25, 0.55], ["-100%", "0%"])
-  const img1X = useTransform(smoothProgress, [0.27, 0.58], ["100%", "0%"])
-  const img1Y = useTransform(smoothProgress, [0.27, 0.58], ["-100%", "0%"])
-  const img2X = useTransform(smoothProgress, [0.29, 0.61], ["100%", "0%"])
-  const img2Y = useTransform(smoothProgress, [0.29, 0.61], ["100%", "0%"])
-  const img3Y = useTransform(smoothProgress, [0.31, 0.64], ["100%", "0%"])
-  const img4Y = useTransform(smoothProgress, [0.33, 0.67], ["100%", "0%"])
+  // ── Phase 2: Pieces fly in ────────────────────────────────
+  // Stagger: each piece starts 0.03 scroll units later than the previous.
+  // All land at 0.72 for a final unified "snap".
+  const LAND = 0.72
 
-  // Removed opacity transforms — keeping 100% opacity throughout
+  // Top-Left  (starts earliest — feels like it leads the pack)
+  const tlStart = 0.28
+  const tlX     = useTransform(smoothProgress, [tlStart, LAND], ["-110%", "0%"])
+  const tlY     = useTransform(smoothProgress, [tlStart, LAND], ["-110%", "0%"])
+  const tlScale = useTransform(smoothProgress, [tlStart, LAND], [0.92,   1])
+  const tlOp    = useTransform(smoothProgress, [tlStart, tlStart + 0.12, LAND], [0, 1, 1])
+
+  // Top-Right
+  const trStart = 0.31
+  const trX     = useTransform(smoothProgress, [trStart, LAND], ["110%",  "0%"])
+  const trY     = useTransform(smoothProgress, [trStart, LAND], ["-110%", "0%"])
+  const trScale = useTransform(smoothProgress, [trStart, LAND], [0.92,    1])
+  const trOp    = useTransform(smoothProgress, [trStart, trStart + 0.12, LAND], [0, 1, 1])
+
+  // Bottom-Left
+  const blStart = 0.34
+  const blX     = useTransform(smoothProgress, [blStart, LAND], ["-110%", "0%"])
+  const blY     = useTransform(smoothProgress, [blStart, LAND], ["110%",  "0%"])
+  const blScale = useTransform(smoothProgress, [blStart, LAND], [0.92,    1])
+  const blOp    = useTransform(smoothProgress, [blStart, blStart + 0.12, LAND], [0, 1, 1])
+
+  // Bottom-Right (arrives last — completes the picture)
+  const brStart = 0.37
+  const brX     = useTransform(smoothProgress, [brStart, LAND], ["110%",  "0%"])
+  const brY     = useTransform(smoothProgress, [brStart, LAND], ["110%",  "0%"])
+  const brScale = useTransform(smoothProgress, [brStart, LAND], [0.92,    1])
+  const brOp    = useTransform(smoothProgress, [brStart, brStart + 0.12, LAND], [0, 1, 1])
 
   return (
-    <div ref={containerRef} className="relative h-[250vh]">
+    <div ref={containerRef} className="relative h-[300vh]">
       <div
         className="sticky top-0 h-screen overflow-hidden flex items-center justify-center"
-        style={{ backgroundColor: isLight ? '#F7F2E8' : '#0F172A' }}
+        style={{ backgroundColor: isLight ? "#F7F2E8" : "#0F172A" }}
       >
-
         {/* ── Phase 1: Headline ── */}
         <motion.div
-          style={{ opacity: textOpacity, y: textY }}
+          style={{ opacity: textOpacity, y: textY, scale: textScale }}
           className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6 pointer-events-none"
         >
-          <p className="uppercase tracking-[0.25em] text-xs font-bold text-[#D1AF62] mb-5">
+          <p className="uppercase tracking-[0.28em] text-xs font-bold text-[#D1AF62] mb-5">
             Your Trading Education Partner
           </p>
-          <h2 className="text-5xl md:text-7xl font-extrabold tracking-tighter leading-tight max-w-3xl" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>
+          <h2
+            className="text-5xl md:text-7xl font-extrabold tracking-tighter leading-tight max-w-3xl"
+            style={{ color: isLight ? "#3E3730" : "#E0E7FF" }}
+          >
             Master The Markets
           </h2>
-          <p className="mt-6 max-w-lg text-base md:text-lg font-medium leading-relaxed" style={{ color: isLight ? '#A38970' : '#CBD5E1' }}>
+          <p
+            className="mt-6 max-w-lg text-base md:text-lg font-medium leading-relaxed"
+            style={{ color: isLight ? "#A38970" : "#CBD5E1" }}
+          >
             Dive deep into technical analysis, risk management, and trading
             psychology. See the unseen with our advanced market charting frameworks.
           </p>
@@ -103,10 +121,10 @@ export function BentoGallery() {
               href="/courses"
               className="px-8 py-4 font-bold text-base rounded-full transition-colors"
               style={{
-                color: isLight ? '#3E3730' : '#E0E7FF',
-                borderWidth: '1px',
-                borderColor: isLight ? '#A38970/30' : '#4FD1FF/30',
-                backgroundColor: isLight ? '#F7F2E8' : '#1E293B'
+                color: isLight ? "#3E3730" : "#E0E7FF",
+                border: "1px solid",
+                borderColor: isLight ? "rgba(163,137,112,0.30)" : "rgba(79,209,255,0.30)",
+                backgroundColor: isLight ? "#F7F2E8" : "#1E293B",
               }}
             >
               View Curriculum
@@ -114,84 +132,51 @@ export function BentoGallery() {
           </div>
         </motion.div>
 
-        {/* ── Phase 2: Full-screen bento — images fly in from their own directions ── */}
-        <div className="absolute inset-0 z-10 w-screen h-screen grid gap-[3px]"
-          style={{ backgroundColor: isLight ? '#F7F2E8' : '#0F172A', gridTemplateColumns: '3fr 2fr', gridTemplateRows: '1fr 1fr' }}>
-
-          {/* Top-left  ← from left */}
+        {/* ── Phase 2: 2×2 puzzle grid ── */}
+        <div
+          className="absolute inset-0 z-10 w-screen h-screen grid"
+          style={{ gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr" }}
+        >
+          {/* Top-Left */}
           <motion.div
-            style={{ x: img0X }}
-            className="relative overflow-hidden bg-white/5 backdrop-blur-sm will-change-transform"
+            style={{ x: tlX, y: tlY, scale: tlScale, opacity: tlOp }}
+            className="relative overflow-hidden will-change-transform"
           >
-            <Image 
-              src={IMAGES[0].src} 
-              alt={IMAGES[0].label} 
-              fill 
-              priority
-              className="object-cover object-top" 
-            />
+            <div className="absolute top-0 left-0 w-[200%] h-[200%]">
+              <Image src={currentImage} alt="Infographic – top left" fill priority className="object-cover object-left-top" />
+            </div>
           </motion.div>
 
-          {/* Top-right  ↙ from top-right corner */}
+          {/* Top-Right */}
           <motion.div
-            style={{ x: img1X, y: img1Y }}
-            className="relative overflow-hidden bg-white/5 backdrop-blur-sm will-change-transform"
+            style={{ x: trX, y: trY, scale: trScale, opacity: trOp }}
+            className="relative overflow-hidden will-change-transform"
           >
-            <Image 
-              src={IMAGES[1].src} 
-              alt={IMAGES[1].label} 
-              fill 
-              priority
-              className="object-cover object-top" 
-            />
+            <div className="absolute top-0 left-[-100%] w-[200%] h-[200%]">
+              <Image src={currentImage} alt="Infographic – top right" fill priority className="object-cover object-left-top" />
+            </div>
           </motion.div>
 
-          {/* Bottom Row — spans full width, 3 equal columns */}
-          <div className="col-span-2 grid grid-cols-3 gap-[3px]">
-            {/* Bottom-left  ↖ from bottom-right corner */}
-            <motion.div
-              style={{ x: img2X, y: img2Y }}
-              className="relative overflow-hidden bg-white/5 backdrop-blur-sm will-change-transform"
-            >
-              <Image 
-                src={IMAGES[2].src} 
-                alt={IMAGES[2].label} 
-                fill 
-                priority
-                className="object-cover object-top" 
-              />
-            </motion.div>
+          {/* Bottom-Left */}
+          <motion.div
+            style={{ x: blX, y: blY, scale: blScale, opacity: blOp }}
+            className="relative overflow-hidden will-change-transform"
+          >
+            <div className="absolute top-[-100%] left-0 w-[200%] h-[200%]">
+              <Image src={currentImage} alt="Infographic – bottom left" fill priority className="object-cover object-left-top" />
+            </div>
+          </motion.div>
 
-            {/* Bottom-center  ↑ from bottom */}
-            <motion.div
-              style={{ y: img3Y }}
-              className="relative overflow-hidden bg-white/5 backdrop-blur-sm will-change-transform"
-            >
-              <Image 
-                src={IMAGES[3].src} 
-                alt={IMAGES[3].label} 
-                fill 
-                priority
-                className="object-cover object-top" 
-              />
-            </motion.div>
-
-            {/* Bottom-right  ↑ from bottom */}
-            <motion.div
-              style={{ y: img4Y }}
-              className="relative overflow-hidden bg-white/5 backdrop-blur-sm will-change-transform"
-            >
-              <Image 
-                src={IMAGES[4].src} 
-                alt={IMAGES[4].label} 
-                fill 
-                priority
-                className="object-cover object-top" 
-              />
-            </motion.div>
-          </div>
+          {/* Bottom-Right */}
+          <motion.div
+            style={{ x: brX, y: brY, scale: brScale, opacity: brOp }}
+            className="relative overflow-hidden will-change-transform"
+          >
+            <div className="absolute top-[-100%] left-[-100%] w-[200%] h-[200%]">
+              <Image src={currentImage} alt="Infographic – bottom right" fill priority className="object-cover object-left-top" />
+            </div>
+          </motion.div>
         </div>
-
       </div>
     </div>
   )
