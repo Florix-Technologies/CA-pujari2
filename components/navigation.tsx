@@ -66,10 +66,10 @@ export function Navigation() {
   }, [])
 
   // Theme-aware colors
-  const navBgScroll = isLight ? "bg-[#F7F2E8]/80" : "bg-[#0F172A]/80"
-  const navBgDefault = isLight ? "bg-[#F7F2E8]/40" : "bg-[#0F172A]/40"
-  const navBorder = isLight ? "border-[#A38970]/30" : "border-[#4FD1FF]/30"
-  const itemBg = isLight ? "bg-white/40" : "bg-slate-800/40"
+  const navBgScroll = isLight ? "bg-white/40" : "bg-[#0F172A]/50"
+  const navBgDefault = isLight ? "bg-white/20" : "bg-[#0F172A]/25"
+  const navBorder = isLight ? "border-white/60" : "border-white/10"
+  const itemBg = isLight ? "bg-white/50" : "bg-white/5"
   const itemBgHover = isLight ? "border-[#A38970]/30" : "border-[#4FD1FF]/30"
   const itemActive = isLight ? "bg-[#3E3730]" : "bg-[#4FD1FF]"
   const itemText = isLight ? "text-[#A38970]" : "text-[#A5B4FC]"
@@ -143,9 +143,26 @@ export function Navigation() {
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: hidden ? "-120%" : 0, opacity: hidden ? 0 : 1 }}
         transition={{ type: "spring", stiffness: 260, damping: 28 }}
-        className={`pointer-events-auto w-full max-w-6xl rounded-full transition-all duration-500 ${scrolled
-          ? `${navBgScroll} backdrop-blur-xl ${navBorder} shadow-xl py-2`
-          : `${navBgDefault} backdrop-blur-md border border-transparent shadow-none py-4`
+        style={{
+          background: scrolled
+            ? isLight
+              ? 'linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(247,242,232,0.45) 100%)'
+              : 'linear-gradient(135deg, rgba(15,23,42,0.55) 0%, rgba(30,41,59,0.45) 100%)'
+            : isLight
+              ? 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(247,242,232,0.18) 100%)'
+              : 'linear-gradient(135deg, rgba(15,23,42,0.28) 0%, rgba(30,41,59,0.18) 100%)',
+          boxShadow: scrolled
+            ? isLight
+              ? '0 8px 32px rgba(163,137,112,0.18), inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(163,137,112,0.1)'
+              : '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(79,209,255,0.06)'
+            : 'none',
+          border: scrolled
+            ? `1px solid ${isLight ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.08)'}`
+            : '1px solid transparent',
+        }}
+        className={`pointer-events-auto w-full max-w-6xl rounded-full transition-all duration-300 ${scrolled
+          ? `backdrop-blur-2xl saturate-150 py-2`
+          : `backdrop-blur-md py-4`
           }`}
       >
         <div className="px-5 md:px-8">
@@ -213,7 +230,16 @@ export function Navigation() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="md:hidden overflow-hidden w-full absolute top-full left-0 mt-3 bg-[#F7F2E8] dark:bg-[#0f0f0f] backdrop-blur-xl border border-[#A38970]/30 dark:border-white/10 shadow-2xl rounded-3xl z-50"
+              className="md:hidden overflow-hidden w-full absolute top-full left-0 mt-3 backdrop-blur-2xl saturate-150 border shadow-2xl rounded-3xl z-50"
+            style={{
+              background: isLight
+                ? 'linear-gradient(135deg, rgba(255,255,255,0.72) 0%, rgba(247,242,232,0.60) 100%)'
+                : 'linear-gradient(135deg, rgba(15,23,42,0.75) 0%, rgba(30,41,59,0.65) 100%)',
+              borderColor: isLight ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.08)',
+              boxShadow: isLight
+                ? '0 20px 60px rgba(163,137,112,0.2), inset 0 1px 0 rgba(255,255,255,0.9)'
+                : '0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07)',
+            }}
               style={{ maxHeight: '80vh', overflowY: 'auto' }}
             >
               <div className="px-6 py-6 flex flex-col gap-2 relative z-10">

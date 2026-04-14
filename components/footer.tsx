@@ -83,14 +83,28 @@ export function Footer() {
             </div>
           </div>
         </div>
-        <div 
-          className="border-t pt-8 text-center text-sm"
-          style={{
-            borderColor: isLight ? '#3E3730/20' : '#4FD1FF/20'
-          }}
+        <div
+          className="border-t pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm"
+          style={{ borderColor: isLight ? 'rgba(62,55,48,0.2)' : 'rgba(79,209,255,0.2)' }}
         >
-          <p>&copy; 2026 Shobha Pujari. All rights reserved.</p>
-          <h1 className="text-4xl opacity-80 mt-2">Developed by <a href="https://florixtechnologies.com/" target="_blank" rel="noopener noreferrer" className="hover:opacity-100 transition-opacity underline">Florix Technologies</a></h1>
+          <p style={{ color: isLight ? 'rgba(62,55,48,0.6)' : 'rgba(224,231,255,0.5)' }}>
+            &copy; 2026 Shobha Pujari. All rights reserved.
+          </p>
+          <a
+            href="https://florixtechnologies.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 group transition-opacity hover:opacity-100"
+            style={{ color: isLight ? 'rgba(62,55,48,0.45)' : 'rgba(224,231,255,0.35)' }}
+          >
+            <span className="text-xs tracking-wide">Developed by</span>
+            <span
+              className="text-xs font-semibold tracking-wide group-hover:underline underline-offset-2"
+              style={{ color: isLight ? '#A38970' : '#4FD1FF' }}
+            >
+              Florix Technologies
+            </span>
+          </a>
         </div>
       </div>
     </footer>

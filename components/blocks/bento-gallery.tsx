@@ -2,7 +2,9 @@
 
 import { useRef } from "react"
 import { useTheme } from "@/hooks/useTheme"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { motion, useScroll, useTransform, useSpring } from "framer-motion"
+import { fadeUp, stagger } from "@/lib/animations"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -29,6 +31,7 @@ const INFOGRAPHICS = {
  */
 export function BentoGallery() {
   const { isLight } = useTheme()
+  const isMobile = useIsMobile()
   const containerRef = useRef<HTMLDivElement>(null)
 
   const currentImage = isLight ? INFOGRAPHICS.light : INFOGRAPHICS.dark
@@ -83,6 +86,115 @@ export function BentoGallery() {
   const brScale = useTransform(smoothProgress, [brStart, LAND], [0.92,    1])
   const brOp    = useTransform(smoothProgress, [brStart, brStart + 0.12, LAND], [0, 1, 1])
 
+  /* ── MOBILE: UIverse notification-card style ── */
+  if (isMobile) {
+    return (
+      <section
+        className="py-12 px-4"
+        style={{ backgroundColor: isLight ? '#F7F2E8' : '#0A1628' }}
+      >
+        {/* Hero notification card */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={stagger}
+          className="mb-8"
+        >
+          <motion.div
+            variants={fadeUp}
+            className="rounded-2xl p-5 mx-auto"
+            style={{
+              maxWidth: 380,
+              backgroundColor: isLight ? '#ffffff' : '#1E293B',
+              border: `1px solid ${isLight ? 'rgba(209,175,98,0.35)' : 'rgba(79,209,255,0.2)'}`,
+              boxShadow: isLight
+                ? '0 4px 24px rgba(209,175,98,0.10)'
+                : '0 4px 24px rgba(0,0,0,0.3)',
+            }}
+          >
+            {/* Header row */}
+            <div className="flex items-center gap-3 mb-4">
+              <span
+                className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full"
+                style={{ backgroundColor: isLight ? '#D1AF62' : '#4FD1FF' }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                  <polyline points="16 7 22 7 22 13" />
+                </svg>
+              </span>
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.18em] font-bold" style={{ color: isLight ? '#D1AF62' : '#4FD1FF' }}>
+                  Your Trading Education Partner
+                </p>
+                <p className="text-base font-extrabold leading-tight" style={{ color: isLight ? '#3E3730' : '#E0E7FF' }}>
+                  Master The Markets
+                </p>
+              </div>
+            </div>
+
+            {/* Message */}
+            <p className="text-sm leading-relaxed mb-5" style={{ color: isLight ? '#6B7280' : '#94A3B8' }}>
+              Dive deep into technical analysis, risk management, and trading psychology. See the unseen with our advanced market charting frameworks.
+            </p>
+
+            {/* Actions */}
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/courses"
+                className="block w-full text-center rounded-xl py-3 px-5 text-sm font-semibold text-white transition-all duration-150"
+                style={{ backgroundColor: isLight ? '#D1AF62' : '#4FD1FF', color: isLight ? '#fff' : '#0A1628' }}
+              >
+                Start Learning
+              </Link>
+              <Link
+                href="/courses"
+                className="block w-full text-center rounded-xl py-3 px-5 text-sm font-semibold transition-all duration-150"
+                style={{
+                  backgroundColor: isLight ? '#F9FAFB' : 'rgba(255,255,255,0.05)',
+                  color: isLight ? '#6B7280' : '#94A3B8',
+                }}
+              >
+                View Curriculum
+              </Link>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Stacked Images */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={stagger}
+          className="flex flex-col gap-3"
+        >
+          {IMAGES.map((img, i) => (
+            <motion.div
+              key={i}
+              variants={fadeUp}
+              className="relative w-full rounded-2xl overflow-hidden"
+              style={{ aspectRatio: '16/9' }}
+            >
+              <Image
+                src={img.src}
+                alt={img.label}
+                fill
+                className="object-cover object-top"
+                sizes="100vw"
+              />
+              <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent">
+                <p className="text-white text-xs font-semibold">{img.label}</p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+    )
+  }
+
+  /* ── DESKTOP: Scroll-pinned bento with flying-in animations (unchanged) ── */
   return (
     <div ref={containerRef} className="relative h-[300vh]">
       <div

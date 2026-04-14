@@ -47,7 +47,7 @@ export default function CommunityPage() {
 
       {/* ── SCROLLABLE CONTENT (on top of fixed bg) ── */}
       <div style={{ position: "relative", zIndex: 1 }}>
-        <Navigation />
+        <Navigation /> 
 
         {/* Hero section — full viewport, no bg of its own */}
         <section style={{
